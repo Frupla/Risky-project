@@ -70,36 +70,56 @@ using namespace std;
 #define t4   29
 #define t5   30
 #define t6   31
+#define byte 8
 
-uint32_t reg[32];
+uint32_t Reg[32];
+char Memory[2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2];
 
+uint32_t pc = 0;
+
+
+uint32_t signExtend(uint32_t toBeExtended, uint32_t msb){
+	if(toBeExtended & (1 << msb)){
+		return	toBeExtended | (0xFFFFFFF << (1 + msb));
+	}else{
+		return toBeExtended;
+	}
+}
 
 uint32_t I(instruction){
+	uint32_t msb = 11;
 	// Irenes kode her...
 
 	uint32_t encoding = (funct3 << 7) | opcode; // funct3 and opcode informs us what instruction we are dealing with
 
 	switch(encoding){
 		case 0x67: // JALR
+			Reg[rd] = ++pc;
+			pc = Reg[rs1] + imm;
 			break;
 		case 0x03: // LB
+			Reg[rd] = Memory[imm + rs1] | signExtend(Memory[imm + rs1], byte-1);
 			break;
 		case 0x83: // LH
+			Reg[rd] = (Memory[imm + rs1] << byte) | Memory[imm + rs1 + 1] | signExtend(((Memory[imm + rs1] << byte) | Memory[imm + rs1 + 1]), 2*byte-1);
 			break;
 		case 0x103: //LW
+			Reg[rd] = (Memory[imm + rs1] << 3*byte) | (Memory[imm + rs1 + 1] << 2*byte | Memory[imm + rs1 + 2] << byte) | Memory[imm + rs1 + 3];
 			break;
 		case 0x203: //LBU
+			Reg[rd] = Memory[imm + rs1];
 			break;
 		case 0x283: // LHU
+			Reg[rd] = (Memory[imm + rs1] << byte) | Memory[imm + rs1 + 1];
 			break;
 		case 0x13: // ADDI
 			Reg[rd] = Reg[rs1] + imm;
 			break;
 		case 0x113: // SLTI
-			Reg[rd] = (Reg[rs1] < imm) ? 1 : 0;
+			Reg[rd] = ((int)Reg[rs1] < (int)signExtend(imm, msb)) ? 1 : 0;
 			break;
-		case 0x193: // SLTIU
-			// How do we handle unsigned?
+		case 0x193: // SLTIU	
+			Reg[rd] = (Reg[rs1] < imm) ? 1 : 0;
 			break;
 		case 0x213: // XORI
 			Reg[rd] = Reg[rs1] ^ imm;
@@ -110,7 +130,6 @@ uint32_t I(instruction){
 		case 0x393: // ANDI
 			Reg[rd] = Reg[rs1] & imm;
 			break;
-
 	}
 
 }
@@ -166,7 +185,6 @@ char whatKindOfInstruction(uint32_t instruction){
 
 int main(){
 
-	int pc = 0;
 	uint32_t prog[100];
 	int pcmax = 100; // This should be the lenght of the prog array
 	
