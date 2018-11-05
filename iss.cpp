@@ -86,9 +86,13 @@ uint32_t signExtend(uint32_t toBeExtended, uint32_t msb){
 	}
 }
 
-uint32_t I(instruction){
+uint32_t I(uint32_t instruction){
 	uint32_t msb = 11;
-	// Irenes kode her...
+	char opcode = instruction & 0x0000007f; //zeros all but last 7 bit, 0x7f = 0111 1111
+    char rd = (instruction >> 7) & 0x0000001f; //shifts down to rd in bottom 5 bits, and then zeros all but last 5 bits, 0x1f = 0001 1111
+    char funct3 = (instruction >> (7+5)) & 0x00000007; //shifts down to funct3 in bottom 3 bits, and then zeros all but last 5 bits, 0x0f = 0000 0111
+    char rs1 = (instruction >> (7+5+3)) & 0x0000001f; //shifts down to rs1 in bottom 5 bits, and then zeros all but last 5 bits, 0x1f = 0001 1111
+    short imm = (instruction >> (7+5+3+5)) & 0x00000fff; //shifts down to imm in bottom 12 bits, and then zeros all but last 12 bits
 
 	uint32_t encoding = (funct3 << 7) | opcode; // funct3 and opcode informs us what instruction we are dealing with
 
@@ -186,7 +190,7 @@ char whatKindOfInstruction(uint32_t instruction){
 int main(){
 
 	uint32_t prog[100];
-	int pcmax = 100; // This should be the lenght of the prog array
+	int pcmax = 100; // This should be the length of the prog array
 	
 	uint32_t instruction;
 	char instructionType;
