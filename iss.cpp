@@ -4,6 +4,10 @@
 
 using namespace std;
 
+
+// So we can just call registers their names, though, we might never have to use this...
+
+// Oh well, we can alwas delete this
 #define x0  0
 #define x1  1
 #define x2  2
@@ -72,6 +76,8 @@ using namespace std;
 #define t6   31
 #define byte 8
 
+
+// Shady bitfield implementation
 union InstructionUnion {
     uint32_t instruction;
     struct {
@@ -124,13 +130,26 @@ union InstructionUnion {
     }J_s;
 };
 
-uint32_t Reg[32];
-char Memory[2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2*2];
 
-uint32_t pc = 0;
+// Global variables (It is nice to have access to these across all functions)
+uint32_t Reg[32]; 		// The 32 registers
+char Memory[(1 << 10)]; // the memory, a byte array of length 2^10? I think 
+uint32_t pc = 0; 		// the program counter
 
 
-uint32_t signExtend(uint32_t toBeExtended, uint32_t msb){
+void printRegister(){
+	for(int i = 0; i < 32; i++){
+		cout << "x" << i << " = " << Reg[i] << endl;
+	}
+}
+
+void initRegister(){ // Sets every value in the register to be zero
+	for(int i = 0; i < 32; i++){
+		Reg[i] = 0;
+	}
+}
+
+uint32_t signExtend(uint32_t toBeExtended, uint32_t msb){ // takes an uint, and the msb of that uint, then sign extends accordingly
 	if(toBeExtended & (1 << msb)){
 		return	toBeExtended | (0xFFFFFFF << (1 + msb));
 	}else{
@@ -165,41 +184,41 @@ uint32_t I(InstructionUnion instruction){
 	uint32_t encoding = ((uint32_t)(instruction.I_s.funct3) << 7) | instruction.I_s.opcode; // funct3 and opcode informs us what instruction we are dealing with
 
 	switch(encoding){
-		case 0x67: // JALR
+		case 0x67: // JALR - 0110 0111
 			Reg[instruction.I_s.rd] = ++pc;
 			pc = Reg[instruction.I_s.rs1] + instruction.I_s.imm;
 			break;
-		case 0x03: // LB
+		case 0x03: // LB - 0000 0011
 			Reg[instruction.I_s.rd] = Memory[instruction.I_s.imm + instruction.I_s.rs1] | signExtend(Memory[instruction.I_s.imm + instruction.I_s.rs1], byte-1);
 			break;
-		case 0x83: // LH
+		case 0x83: // LH - 1000 0011
 			Reg[instruction.I_s.rd] = (Memory[instruction.I_s.imm + instruction.I_s.rs1] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1] | signExtend(((Memory[instruction.I_s.imm + instruction.I_s.rs1] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1]), 2*byte-1);
 			break;
-		case 0x103: //LW
+		case 0x103: //LW - 0001 0000 0011
 			Reg[instruction.I_s.rd] = (Memory[instruction.I_s.imm + instruction.I_s.rs1] << 3*byte) | (Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1] << 2*byte | Memory[instruction.I_s.imm + instruction.I_s.rs1 + 2] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1 + 3];
 			break;
-		case 0x203: //LBU
+		case 0x203: //LBU - 0010 0000 0011 
 			Reg[instruction.I_s.rd] = Memory[instruction.I_s.imm + instruction.I_s.rs1];
 			break;
-		case 0x283: // LHU
+		case 0x283: // LHU - 0010 1000 0011
 			Reg[instruction.I_s.rd] = (Memory[instruction.I_s.imm + instruction.I_s.rs1] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1];
 			break;
-		case 0x13: // ADDI
+		case 0x13: // ADDI - 0001 0011
 			Reg[instruction.I_s.rd] = Reg[instruction.I_s.rs1] + instruction.I_s.imm;
 			break;
-		case 0x113: // SLTI
+		case 0x113: // SLTI - 0001 0001 0011
 			Reg[instruction.I_s.rd] = ((int)Reg[instruction.I_s.rs1] < (int)signExtend(instruction.I_s.imm, msb)) ? 1 : 0;
 			break;
-		case 0x193: // SLTIU	
+		case 0x193: // SLTIU - 0001 1001 0011
 			Reg[instruction.I_s.rd] = (Reg[instruction.I_s.rs1] < instruction.I_s.imm) ? 1 : 0;
 			break;
-		case 0x213: // XORI
+		case 0x213: // XORI - 0010 0001 0011
 			Reg[instruction.I_s.rd] = Reg[instruction.I_s.rs1] ^ instruction.I_s.imm;
 			break;
-		case 0x313: // ORI
+		case 0x313: // ORI - 0011 0001 0011
 			Reg[instruction.I_s.rd] = Reg[instruction.I_s.rs1] | instruction.I_s.imm;
 			break;
-		case 0x393: // ANDI
+		case 0x393: // ANDI - 0011 1001 0011
 			Reg[instruction.I_s.rd] = Reg[instruction.I_s.rs1] & instruction.I_s.imm;
 			break;
 	}
@@ -208,7 +227,8 @@ uint32_t I(InstructionUnion instruction){
 
 
 
-char whatKindOfInstruction(InstructionUnion instruction){
+char whatKindOfInstruction(InstructionUnion instruction){ // Looks at the opcode (and in one case funct3) and figures out which type of
+														  // Instruction we are dealing with
 	switch(instruction.B_s.opcode){
 		case 0x23 : // S - type
 			return 'S';
@@ -256,11 +276,12 @@ char whatKindOfInstruction(InstructionUnion instruction){
 int main(){
 
 	uint32_t prog[100];
-	int pcmax = 100; // This should be the lenght of the prog array
+	int pcmax = 100; // This should be the length of the prog array
 	InstructionUnion instruction;
 	//instruction.instruction = 0x408505b3;
 	char instructionType;
 	uint32_t branchInstruction = 0;
+	initRegister();
 
 	while(pc < pcmax){
 		cin >> instruction.instruction;
@@ -302,7 +323,7 @@ int main(){
 				cout << "Invalid input" << endl;
 				break;		
 		}
-
+		printRegister();
 		pc++;
 	}
 
