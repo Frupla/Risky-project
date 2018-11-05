@@ -74,6 +74,47 @@ using namespace std;
 uint32_t reg[32];
 
 
+uint32_t I(instruction){
+	// Irenes kode her...
+
+	uint32_t encoding = (funct3 << 7) | opcode; // funct3 and opcode informs us what instruction we are dealing with
+
+	switch(encoding){
+		case 0x67: // JALR
+			break;
+		case 0x03: // LB
+			break;
+		case 0x83: // LH
+			break;
+		case 0x103: //LW
+			break;
+		case 0x203: //LBU
+			break;
+		case 0x283: // LHU
+			break;
+		case 0x13: // ADDI
+			Reg[rd] = Reg[rs1] + imm;
+			break;
+		case 0x113: // SLTI
+			Reg[rd] = (Reg[rs1] < imm) ? 1 : 0;
+			break;
+		case 0x193: // SLTIU
+			// How do we handle unsigned?
+			break;
+		case 0x213: // XORI
+			Reg[rd] = Reg[rs1] ^ imm;
+			break;
+		case 0x313: // ORI
+			Reg[rd] = Reg[rs1] | imm;
+			break;
+		case 0x393: // ANDI
+			Reg[rd] = Reg[rs1] & imm;
+			break;
+
+	}
+
+}
+
 
 
 char whatKindOfInstruction(uint32_t instruction){
