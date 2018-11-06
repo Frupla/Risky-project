@@ -288,7 +288,7 @@ uint32_t I(InstructionUnion instruction){
 }
 
 
-uint32_t S(InstructionUnion instruction){
+uint32_t S(InstructionUnion instruction){ // Something goes wrong when storing numbers in more than one byte, maybe the problems is in loading
 	uint32_t msb = 11;
     uint32_t imm = ((uint32_t)(instruction.S_s.imm11_5) << 5) | instruction.S_s.imm4_0; 
 
@@ -310,8 +310,7 @@ uint32_t S(InstructionUnion instruction){
     		break;
     }
 
-
-    return 0;
+   return 0;
 }
 
 
