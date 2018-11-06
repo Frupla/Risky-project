@@ -132,10 +132,24 @@ union InstructionUnion {
 
 
 // Global variables (It is nice to have access to these across all functions)
+static int lengthOfMemory = 1<<10;
 uint32_t Reg[32]; 		// The 32 registers
-char Memory[(1 << 10)]; // the memory, a byte array of length 2^10? I think 
+char Memory[1<<13]; // the memory, an array of bytes of length 2^13 
 uint32_t pc = 0; 		// the program counter
 
+void setMemoryToZero(){
+	for(int i = 0; i <= lengthOfMemory; i++){
+		Memory[i] = 0;
+	}
+}
+
+void printMemory(){
+	for (int i = 0; i <= lengthOfMemory; i++){
+		if(Memory[i] != 0){
+			cout << "Memory[" << i << "] = " << (int)Memory[i] << endl;
+		}
+	}
+}
 
 void printRegister(){
 	for(int i = 0; i < 32; i++){
@@ -155,6 +169,54 @@ uint32_t signExtend(uint32_t toBeExtended, uint32_t msb){ // takes an uint, and 
 	}else{
 		return toBeExtended;
 	}
+}
+
+uint32_t debug(){ // This uses a weird syntax, but tbh, it is far better than writing in commands as long decimals
+	// The input is four integers in array A, the syntax is as follow:
+	// A[0] determines what kind of instruction we are dealing with, 0 is addi, 1 is lw, 2 is sw and 3 is a generic R instruction (right now I'm using R to print the memory)
+	// A[1] is the register where the result of the instruction should be saved
+	// A[2] is the second register, often the value here is often manipulated in some fashion
+	// A[3] is the immediate, often added to the second register
+	InstructionUnion instruction;
+	int input;
+	int A[4];
+	int i = 0;
+	
+	while(i < 4){
+		cin >> A[i];
+		i++;
+	}
+
+	switch(A[0]){
+		case 0: // A[0] = addi A[1] = rd, A[2] = rs1, A[3] = imm
+			instruction.I_s.opcode = 0x13;
+			instruction.I_s.rd = A[1];
+			instruction.I_s.funct3 = 0x0;
+			instruction.I_s.rs1 = A[2];
+			instruction.I_s.imm = A[3];
+			break;
+		case 1: // A[0] = lw, A[1] = rd, A[2] = rs1, A[3] = imm
+			instruction.I_s.opcode = 0x03;
+			instruction.I_s.rd = A[1];
+			instruction.I_s.funct3 = 0x02;
+			instruction.I_s.rs1 = A[2];
+			instruction.I_s.imm = A[3];
+			break;
+		case 2: // A[0] = sw, A[1] = rs1, A[2] = rs2, A[3] = imm
+			instruction.S_s.opcode = 0x23;
+			instruction.S_s.rs1 = A[1];
+			instruction.S_s.funct3 = 0x02;
+			instruction.S_s.rs2 = A[2];
+			instruction.S_s.imm4_0 = A[3]; // this should be kept below 15 (yes this is shitty Irene, but it is just for debugging)
+			break;
+		case 3:
+			instruction.R_s.opcode = 0x33;
+		default : 
+			break;
+	}
+
+	return instruction.instruction;
+
 }
 
 
@@ -192,16 +254,16 @@ uint32_t I(InstructionUnion instruction){
 			Reg[instruction.I_s.rd] = Memory[instruction.I_s.imm + instruction.I_s.rs1] | signExtend(Memory[instruction.I_s.imm + instruction.I_s.rs1], byte-1);
 			break;
 		case 0x83: // LH - 1000 0011
-			Reg[instruction.I_s.rd] = (Memory[instruction.I_s.imm + instruction.I_s.rs1] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1] | signExtend(((Memory[instruction.I_s.imm + instruction.I_s.rs1] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1]), 2*byte-1);
+			Reg[instruction.I_s.rd] = (Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1] | signExtend(((Memory[instruction.I_s.imm + instruction.I_s.rs1] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1]), 2*byte-1);
 			break;
 		case 0x103: //LW - 0001 0000 0011
-			Reg[instruction.I_s.rd] = (Memory[instruction.I_s.imm + instruction.I_s.rs1] << 3*byte) | (Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1] << 2*byte | Memory[instruction.I_s.imm + instruction.I_s.rs1 + 2] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1 + 3];
+			Reg[instruction.I_s.rd] = (Memory[instruction.I_s.imm + instruction.I_s.rs1 + 3] << 3*byte) | (Memory[instruction.I_s.imm + instruction.I_s.rs1 + 2] << 2*byte | Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1];
 			break;
 		case 0x203: //LBU - 0010 0000 0011 
 			Reg[instruction.I_s.rd] = Memory[instruction.I_s.imm + instruction.I_s.rs1];
 			break;
 		case 0x283: // LHU - 0010 1000 0011
-			Reg[instruction.I_s.rd] = (Memory[instruction.I_s.imm + instruction.I_s.rs1] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1];
+			Reg[instruction.I_s.rd] = (Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1];
 			break;
 		case 0x13: // ADDI - 0001 0011
 			Reg[instruction.I_s.rd] = Reg[instruction.I_s.rs1] + instruction.I_s.imm;
@@ -224,6 +286,34 @@ uint32_t I(InstructionUnion instruction){
 	}
 	return 0;
 }
+
+
+uint32_t S(InstructionUnion instruction){
+	uint32_t msb = 11;
+    uint32_t imm = ((uint32_t)(instruction.S_s.imm11_5) << 5) | instruction.S_s.imm4_0; 
+
+    switch(instruction.S_s.funct3){
+    	case 0x0:	// SB - 000
+    		Memory[instruction.S_s.rs1 + imm 	] =  Reg[instruction.S_s.rs2] 			 & 0xFF; // Only stores the first byte
+    		break;
+    	case 0x1:  	// SH - 001
+    		Memory[instruction.S_s.rs1 + imm 	] =  Reg[instruction.S_s.rs2] 			 & 0xFF; // First byte
+    		Memory[instruction.S_s.rs1 + imm + 1] = (Reg[instruction.S_s.rs2] >> byte)   & 0xFF; // Second byte     	 
+    		break;
+    	case 0x2:	// SW - 010
+    		Memory[instruction.S_s.rs1 + imm 	] =  Reg[instruction.S_s.rs2] 			 & 0xFF; // First byte
+    		Memory[instruction.S_s.rs1 + imm + 1] = (Reg[instruction.S_s.rs2] >> byte) 	 & 0xFF; // Second byte
+    		Memory[instruction.S_s.rs1 + imm + 2] = (Reg[instruction.S_s.rs2] >> 2*byte) & 0xFF; // Third byte
+    		Memory[instruction.S_s.rs1 + imm + 3] = (Reg[instruction.S_s.rs2] >> 3*byte) & 0xFF; // What do you think byte
+    		break;
+    	default :
+    		break;
+    }
+
+
+    return 0;
+}
+
 
 
 
@@ -282,9 +372,10 @@ int main(){
 	char instructionType;
 	uint32_t branchInstruction = 0;
 	initRegister();
+	setMemoryToZero();
 
 	while(pc < pcmax){
-		cin >> instruction.instruction;
+		instruction.instruction = debug();
 		//instruction.instruction = prog[pc];
 
 		instructionType = whatKindOfInstruction(instruction);
@@ -292,15 +383,16 @@ int main(){
 
 		switch(instructionType){
 			case 'R':
+				printMemory();
 //				R(instruction);
 				cout << instructionType << endl;
 				break;
 			case 'I':
-//				I(instruction);
+				I(instruction);
 				cout << instructionType << endl;
 				break;
 			case 'S':
-//				S(instruction);
+				S(instruction);
 				cout << instructionType << endl;
 				break;
 			case 'U':
