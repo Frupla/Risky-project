@@ -164,6 +164,7 @@ void initRegister(){ // Sets every value in the register to be zero
 	for(int i = 0; i < 32; i++){
 		Reg[i] = 0;
 	}
+	Reg[sp] = lengthOfMemory - 1; //Inisializing the stack pointer to the last memory value.
 }
 
 uint32_t signExtend(uint32_t toBeExtended, uint32_t msb){ // takes an uint, and the msb (0-indexed) of that uint, then sign extends accordingly
