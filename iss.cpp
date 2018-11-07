@@ -218,6 +218,7 @@ uint32_t debug(){ // This uses a weird syntax, but tbh, it is far better than wr
 			instruction.R_s.rs1 = A[2];
 			instruction.R_s.rs2 = A[3];
 			instruction.R_s.funct7 = 0x0;
+			break;
 		case 4:
 			instruction.B_s.opcode = 0x73;
 		default : 
@@ -239,7 +240,7 @@ uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 		case 0x08293://SRAI 0 1000 0010 1001 0011 = 0x08293
 			break; */
 		case 0x00033: //ADD 0 0000 0000 0011 0011 = 0x0033
-			Reg[instruction.R_s.rd] = (int)Reg[instruction.R_s.rs1] + (int)Reg[instruction.R_s.rs2];
+			Reg[instruction.R_s.rd] = ((int)Reg[instruction.R_s.rs1] + (int)Reg[instruction.R_s.rs2]); 
 			break;
 		case 0x08033: //SUB 0 1000 0000 0011 0011 = 0x08033
 			Reg[instruction.R_s.rd] = (int)Reg[instruction.R_s.rs1] - (int)Reg[instruction.R_s.rs2];
@@ -265,7 +266,7 @@ uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 		case 0x00333: //OR 0 0000 0011 0011 0011 = 0x00333
 			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] | Reg[instruction.R_s.rs2];	
 			break;
-		case 0x003b3:// AND 0 0000 0011 1011 0011 = 0x003b3
+		case 0x003b3:// AND 0 0000 0011 1011 0011 = 0x03b3 
 			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] & Reg[instruction.R_s.rs2];
 			break;
 		default:
@@ -300,7 +301,7 @@ uint32_t I(InstructionUnion instruction){
 			Reg[instruction.I_s.rd] = (Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1];
 			break;
 		case 0x13: // ADDI - 0001 0011
-			Reg[instruction.I_s.rd] = Reg[instruction.I_s.rs1] + instruction.I_s.imm;
+			Reg[instruction.I_s.rd] = Reg[instruction.I_s.rs1] +  signExtend((uint32_t)instruction.I_s.imm, msb);
 			break;
 		case 0x113: // SLTI - 0001 0001 0011
 			Reg[instruction.I_s.rd] = ((int)Reg[instruction.I_s.rs1] < (int)signExtend(instruction.I_s.imm, msb)) ? 1 : 0;
@@ -478,7 +479,6 @@ int main(){
 		//instruction.instruction = prog[pc];
 
 		instructionType = whatKindOfInstruction(instruction);
-
 
 		switch(instructionType){
 			case 'R':
