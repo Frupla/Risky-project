@@ -282,8 +282,7 @@ uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 		case 0x002b3: //SRL 0 0000 0010 1011 0011 = 0x002b3, unsigned shift
 			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] >> Reg[instruction.R_s.rs2];
 			break;
-		case 0x082b3: //SRA 0 1000 0010 1011 0011 = 0x082b2, signed shift
-					  //    0 1000 0010 1011 0011   
+		case 0x082b3: //SRA 0 1000 0010 1011 0011 = 0x082b3, signed shift
 			Reg[instruction.R_s.rd] = signExtend((Reg[instruction.R_s.rs1] >> Reg[instruction.R_s.rs2]), 31-Reg[instruction.R_s.rs2]);
 			break;
 		case 0x00333: //OR 0 0000 0011 0011 0011 = 0x00333
@@ -293,7 +292,7 @@ uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] & Reg[instruction.R_s.rs2];
 			break;
 		default:
-			cout << "Opcode " << instruction.R_s.opcode << " not yet implemented";
+			cout << "Not a recognized R-type instruction" << endl;
 			break;
 	}
 	return 0;
@@ -341,6 +340,8 @@ uint32_t I(InstructionUnion instruction){
 		case 0x393: // ANDI - 0011 1001 0011
 			Reg[instruction.I_s.rd] = Reg[instruction.I_s.rs1] & instruction.I_s.imm;
 			break;
+		default:
+			cout << "Not a recognized I-type instruction" << endl;
 	}
 	return 0;
 }
@@ -364,6 +365,7 @@ uint32_t S(InstructionUnion instruction){
     		Memory[instruction.S_s.rs1 + imm + 3] = ((Reg[instruction.S_s.rs2] & 0xFF000000) >> 3*byte); // What do you think byte
     		break;
     	default :
+			cout << "Not a recognized S-type instruction" << endl;
     		break;
     }
 
@@ -405,6 +407,9 @@ uint32_t B(InstructionUnion instruction){
 				pc = pc + imm;
 			}
 			break;	
+		default:
+			cout << "Not a recognized B-type instruction" << endl;
+			break;
 	}
 	return 0;
 }
@@ -420,6 +425,7 @@ uint32_t U(InstructionUnion instruction){
     		Reg[instruction.U_s.rd] = imm;
     		break;
     	default:
+			cout << "Not a recognized U-type instruction" << endl;
     		break;
     }
     return 0;
@@ -434,6 +440,7 @@ uint32_t J(InstructionUnion instruction){
     		pc = pc + imm;
     		break;
     	default:
+			cout << "Not a recognized J-type instruction" << endl;
     		break;
     }
     return 0;
