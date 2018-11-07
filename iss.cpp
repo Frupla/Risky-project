@@ -173,6 +173,19 @@ uint32_t signExtend(uint32_t toBeExtended, uint32_t msb){ // takes an uint, and 
 	}
 }
 
+void shittyInput(){
+	uint16_t input;
+	int i = 0;
+	while(input != 0x73000000){ // - Break when Ecall
+		cin >> hex >> input;
+
+		Memory[i] = (uint8_t)(input>>byte);
+		i++;
+		Memory[i] = (uint8_t)(input);
+		i++;
+	}
+}
+
 uint32_t debug(){ // This uses a weird syntax, but tbh, it is far better than writing in commands as long decimals
 	// The input is four integers in array A, the syntax is as follow:
 	// A[0] determines what kind of instruction we are dealing with, 0 is addi, 1 is lw, 2 is sw and 3 is a generic R instruction (right now I'm using R to print the memory)
