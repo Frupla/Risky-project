@@ -231,11 +231,25 @@ uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 			break;
 		case 0x08293://SRAI 0 1000 0010 1001 0011 = 0x08293
 			break;
-		case 0x0033://ADD 0 0000 0000 0011 0011 = 0x0033
+		case 0x00033: //ADD 0 0000 0000 0011 0011 = 0x0033
 			break;
-		case 0x08033://SUB 0 1000 0000 0011 0011 = 0x08033
+		case 0x08033: //SUB 0 1000 0000 0011 0011 = 0x08033
 			break;
-		//SLL
+		case 0x00b3://SLL 0 0000 0000 1011 0011 = 0x000b3
+			break;
+		case 0x000133://SLT 0 0000 0001 0011 0011 = 0x00133
+			break;
+		case 0x001b3: // SLTU 0 0000 0001 1011 0011 = 0x001b3
+			break;
+		case 0x0233: // XOR 0 0000 0010 0011 0011 = 0x0233
+			break;
+		case 0x002b3: //SRL 0 0000 0010 1011 0011 = 0x002b3
+			break;
+		case 0x0b2b2: //SRA 0 1000 0010 1011 0011 = 0x082b2
+			break;
+		case 0x00333: //OR 0 0000 0011 0011 0011 = 0x00333
+			break;
+		// AND 0 0000 0011 1011 0011
 		default:
 			cout << "Opcode " << instruction.R_s.opcode << " not yet implemented";
 			break;
