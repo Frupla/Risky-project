@@ -134,8 +134,8 @@ union InstructionUnion {
 // Global variables (It is nice to have access to these across all functions)
 static int lengthOfMemory = 1<<10;
 uint32_t Reg[32]; 		// The 32 registers
-char Memory[1<<13]; // the memory, an array of bytes of length 2^13 
 uint32_t pc = 0; 		// the program counter
+uint8_t Memory[1<<10]; // the memory, an array of bytes of length 2^13 
 
 void setMemoryToZero(){
 	for(int i = 0; i <= lengthOfMemory; i++){
@@ -257,7 +257,7 @@ uint32_t I(InstructionUnion instruction){
 			Reg[instruction.I_s.rd] = (Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1] | signExtend(((Memory[instruction.I_s.imm + instruction.I_s.rs1] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1]), 2*byte-1);
 			break;
 		case 0x103: //LW - 0001 0000 0011
-			Reg[instruction.I_s.rd] = (Memory[instruction.I_s.imm + instruction.I_s.rs1 + 3] << 3*byte) | (Memory[instruction.I_s.imm + instruction.I_s.rs1 + 2] << 2*byte | Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1];
+			Reg[instruction.I_s.rd] = ((uint32_t)Memory[instruction.I_s.imm + instruction.I_s.rs1 + 3] << 3*byte) | ((uint32_t)Memory[instruction.I_s.imm + instruction.I_s.rs1 + 2] << 2*byte) | ((uint32_t)Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1] << byte) | (uint32_t)Memory[instruction.I_s.imm + instruction.I_s.rs1];
 			break;
 		case 0x203: //LBU - 0010 0000 0011 
 			Reg[instruction.I_s.rd] = Memory[instruction.I_s.imm + instruction.I_s.rs1];
@@ -301,10 +301,10 @@ uint32_t S(InstructionUnion instruction){ // Something goes wrong when storing n
     		Memory[instruction.S_s.rs1 + imm + 1] = (Reg[instruction.S_s.rs2] >> byte)   & 0xFF; // Second byte     	 
     		break;
     	case 0x2:	// SW - 010
-    		Memory[instruction.S_s.rs1 + imm 	] =  Reg[instruction.S_s.rs2] 			 & 0xFF; // First byte
-    		Memory[instruction.S_s.rs1 + imm + 1] = (Reg[instruction.S_s.rs2] >> byte) 	 & 0xFF; // Second byte
-    		Memory[instruction.S_s.rs1 + imm + 2] = (Reg[instruction.S_s.rs2] >> 2*byte) & 0xFF; // Third byte
-    		Memory[instruction.S_s.rs1 + imm + 3] = (Reg[instruction.S_s.rs2] >> 3*byte) & 0xFF; // What do you think byte
+    		Memory[instruction.S_s.rs1 + imm 	] =   Reg[instruction.S_s.rs2] & 0xFF; 					 // First byte
+    		Memory[instruction.S_s.rs1 + imm + 1] = ((Reg[instruction.S_s.rs2] & 0xFF00) 	 >>   byte); // Second byte
+    		Memory[instruction.S_s.rs1 + imm + 2] = ((Reg[instruction.S_s.rs2] & 0xFF0000) 	 >> 2*byte); // Third byte
+    		Memory[instruction.S_s.rs1 + imm + 3] = ((Reg[instruction.S_s.rs2] & 0xFF000000) >> 3*byte); // What do you think byte
     		break;
     	default :
     		break;
@@ -363,7 +363,7 @@ char whatKindOfInstruction(InstructionUnion instruction){ // Looks at the opcode
 
 
 int main(){
-
+	bool flag = true;
 	uint32_t prog[100];
 	int pcmax = 100; // This should be the length of the prog array
 	InstructionUnion instruction;
@@ -382,7 +382,6 @@ int main(){
 
 		switch(instructionType){
 			case 'R':
-				printMemory();
 //				R(instruction);
 				cout << instructionType << endl;
 				break;
@@ -411,10 +410,17 @@ int main(){
 				cout << "closing" << endl;
 				break;
 			default:
+				flag = false;
 				cout << "Invalid input" << endl;
 				break;		
 		}
-		printRegister();
+
+		if(flag){
+			printRegister();
+			printMemory();	
+		}
+		flag = true;
+
 		pc++;
 	}
 
