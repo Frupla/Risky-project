@@ -2,6 +2,8 @@
 #include <stdint.h>
 
 
+//TODO: ask TA's about how to implement SLLI, SRLI and SRAI
+
 using namespace std;
 
 
@@ -163,7 +165,7 @@ void initRegister(){ // Sets every value in the register to be zero
 	}
 }
 
-uint32_t signExtend(uint32_t toBeExtended, uint32_t msb){ // takes an uint, and the msb of that uint, then sign extends accordingly
+uint32_t signExtend(uint32_t toBeExtended, uint32_t msb){ // takes an uint, and the msb (0-indexed) of that uint, then sign extends accordingly
 	if(toBeExtended & (1 << msb)){
 		return	toBeExtended | (0xFFFFFFF << (1 + msb));
 	}else{
@@ -223,31 +225,42 @@ uint32_t debug(){ // This uses a weird syntax, but tbh, it is far better than wr
 uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 	uint32_t encoding =  ((uint32_t)(instruction.R_s.funct7) << 10) | ((uint32_t)(instruction.R_s.funct3) << 7) | instruction.R_s.opcode; // funct7, funct3 and opcode informs us what instruction we are dealing with
 	switch(encoding){
-		case 0x00093://SLLI 0 0000 0000 1001 0011 = 0x00093
+		/*case 0x00093://SLLI 0 0000 0000 1001 0011 = 0x00093 //ASK TA
 			break;
 		case 0x00293://SRLI 0 0000 0010 1001 0011 = 0x00293
 			break;
 		case 0x08293://SRAI 0 1000 0010 1001 0011 = 0x08293
-			break;
+			break; */
 		case 0x00033: //ADD 0 0000 0000 0011 0011 = 0x0033
+			Reg[instruction.R_s.rd] = (int)Reg[instruction.R_s.rs1] + (int)Reg[instruction.R_s.rs2];
 			break;
 		case 0x08033: //SUB 0 1000 0000 0011 0011 = 0x08033
+			Reg[instruction.R_s.rd] = (int)Reg[instruction.R_s.rs1] - (int)Reg[instruction.R_s.rs2];
 			break;
 		case 0x00b3://SLL 0 0000 0000 1011 0011 = 0x000b3
+			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] << R[instruction.R_s.rs2];	
 			break;
 		case 0x000133://SLT 0 0000 0001 0011 0011 = 0x00133
+			Reg[instruction.R_s.rd] = ((int)R[rs1] < (int)R[rs2]) ? 1 : 0;
 			break;
 		case 0x001b3: // SLTU 0 0000 0001 1011 0011 = 0x001b3
+			Reg[instruction.R_s.rd] = (R[rs1] < R[rs2]) ? 1 : 0;
 			break;
 		case 0x0233: // XOR 0 0000 0010 0011 0011 = 0x0233
+			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] ^ Reg[instruction.R_s.rs2];	
 			break;
-		case 0x002b3: //SRL 0 0000 0010 1011 0011 = 0x002b3
+		case 0x002b3: //SRL 0 0000 0010 1011 0011 = 0x002b3, unsigned shift
+			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] >> R[instruction.R_s.rs2];
 			break;
-		case 0x0b2b2: //SRA 0 1000 0010 1011 0011 = 0x082b2
+		case 0x0b2b2: //SRA 0 1000 0010 1011 0011 = 0x082b2, signed shift
+			Reg[instruction.R_s.rd] = signExtend((Reg[instruction.R_s.rs1] >> R[instruction.R_s.rs2]), 31-R[instruction.R_s.rs2]);
 			break;
 		case 0x00333: //OR 0 0000 0011 0011 0011 = 0x00333
+			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] | Reg[instruction.R_s.rs2];	
 			break;
-		// AND 0 0000 0011 1011 0011
+		case 0x003b3:// AND 0 0000 0011 1011 0011 = 0x003b3
+			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] & Reg[instruction.R_s.rs2];
+			break;
 		default:
 			cout << "Opcode " << instruction.R_s.opcode << " not yet implemented";
 			break;
