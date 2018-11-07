@@ -259,22 +259,22 @@ uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 			Reg[instruction.R_s.rd] = (int)Reg[instruction.R_s.rs1] - (int)Reg[instruction.R_s.rs2];
 			break;
 		case 0x00b3://SLL 0 0000 0000 1011 0011 = 0x000b3
-			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] << R[instruction.R_s.rs2];	
+			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] << Reg[instruction.R_s.rs2];	
 			break;
 		case 0x000133://SLT 0 0000 0001 0011 0011 = 0x00133
-			Reg[instruction.R_s.rd] = ((int)R[rs1] < (int)R[rs2]) ? 1 : 0;
+			Reg[instruction.R_s.rd] = ((int)Reg[instruction.R_s.rs1] < (int)Reg[instruction.R_s.rs2]) ? 1 : 0;
 			break;
 		case 0x001b3: // SLTU 0 0000 0001 1011 0011 = 0x001b3
-			Reg[instruction.R_s.rd] = (R[rs1] < R[rs2]) ? 1 : 0;
+			Reg[instruction.R_s.rd] = (Reg[instruction.R_s.rs1] < Reg[instruction.R_s.rs2]) ? 1 : 0;
 			break;
 		case 0x0233: // XOR 0 0000 0010 0011 0011 = 0x0233
 			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] ^ Reg[instruction.R_s.rs2];	
 			break;
 		case 0x002b3: //SRL 0 0000 0010 1011 0011 = 0x002b3, unsigned shift
-			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] >> R[instruction.R_s.rs2];
+			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] >> Reg[instruction.R_s.rs2];
 			break;
 		case 0x0b2b2: //SRA 0 1000 0010 1011 0011 = 0x082b2, signed shift
-			Reg[instruction.R_s.rd] = signExtend((Reg[instruction.R_s.rs1] >> R[instruction.R_s.rs2]), 31-R[instruction.R_s.rs2]);
+			Reg[instruction.R_s.rd] = signExtend((Reg[instruction.R_s.rs1] >> Reg[instruction.R_s.rs2]), 31-Reg[instruction.R_s.rs2]);
 			break;
 		case 0x00333: //OR 0 0000 0011 0011 0011 = 0x00333
 			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] | Reg[instruction.R_s.rs2];	
