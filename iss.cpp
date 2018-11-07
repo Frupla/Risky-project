@@ -224,11 +224,7 @@ uint32_t debug(){ // This uses a weird syntax, but tbh, it is far better than wr
 			instruction.S_s.rs1 = A[2];
 			instruction.S_s.imm4_0 = A[3]; // this should be kept below 15 (yes this is shitty Irene, but it is just for debugging)
 			break;
-<<<<<<< HEAD
 		case 3: // A[0] = add, A[1] = rs2, A[2] = rs1, A[3] = rs2
-=======
-		case 3: // A[0] = add, A[1] = rd, A[2] = rs1, A[3] = rs2
->>>>>>> af81bb2a194d4b95d550203beac239b9df697e85
 			instruction.R_s.opcode = 0x33;
 			instruction.R_s.rd = A[1];
 			instruction.R_s.funct3 = 0x0;
