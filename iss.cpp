@@ -173,6 +173,19 @@ uint32_t signExtend(uint32_t toBeExtended, uint32_t msb){ // takes an uint, and 
 	}
 }
 
+void shittyInput(){
+	uint16_t input;
+	int i = 0;
+	while(input != 0x73000000){ // - Break when Ecall
+		cin >> hex >> input;
+
+		Memory[i] = (uint8_t)(input>>byte);
+		i++;
+		Memory[i] = (uint8_t)(input);
+		i++;
+	}
+}
+
 uint32_t debug(){ // This uses a weird syntax, but tbh, it is far better than writing in commands as long decimals
 	// The input is four integers in array A, the syntax is as follow:
 	// A[0] determines what kind of instruction we are dealing with, 0 is addi, 1 is lw, 2 is sw and 3 is a generic R instruction (right now I'm using R to print the memory)
@@ -218,6 +231,7 @@ uint32_t debug(){ // This uses a weird syntax, but tbh, it is far better than wr
 			instruction.R_s.rs1 = A[2];
 			instruction.R_s.rs2 = A[3];
 			instruction.R_s.funct7 = 0x0;
+			break;
 		case 4:
 			instruction.B_s.opcode = 0x73;
 		default : 
@@ -385,8 +399,8 @@ uint32_t B(InstructionUnion instruction){
 	return 0;
 }
 
-uint32_t U(InstructionUnion){
-    uint32_t imm = (uint32_t)(instruction.U_s.imm) << 12;
+uint32_t U(InstructionUnion instruction){
+    uint32_t imm = (uint32_t)(instruction.U_s.imm31_12) << 12;
 
     switch(instruction.U_s.opcode){
     	case 0x37: // AUIPC - 0110111
@@ -401,7 +415,7 @@ uint32_t U(InstructionUnion){
     return 0;
 }
 
-uint32_t J(InstructionUnion){
+uint32_t J(InstructionUnion instruction){
     uint32_t imm = ((uint32_t)(instruction.J_s.imm20) << 20) | ((uint32_t)(instruction.J_s.imm19_12) << 12) | ((uint32_t)(instruction.J_s.imm11) << 11) | ((uint32_t)(instruction.J_s.imm10_1) << 1);
     
     switch(instruction.J_s.opcode){
