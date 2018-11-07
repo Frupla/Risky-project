@@ -211,6 +211,11 @@ uint32_t debug(){ // This uses a weird syntax, but tbh, it is far better than wr
 			break;
 		case 3:
 			instruction.R_s.opcode = 0x33;
+			instruction.R_s.rd = A[1];
+			instruction.R_s.funct3 = 0x0;
+			instruction.R_s.rs1 = A[2];
+			instruction.R_s.rs2 = A[3];
+			instruction.R_s.funct7 = 0x0;
 		case 4:
 			instruction.B_s.opcode = 0x73;
 		default : 
@@ -305,8 +310,7 @@ uint32_t I(InstructionUnion instruction){
 
 
 uint32_t S(InstructionUnion instruction){ // Something goes wrong when storing numbers in more than one byte, maybe the problems is in loading
-	uint32_t msb = 11;
-    uint32_t imm = ((uint32_t)(instruction.S_s.imm11_5) << 5) | instruction.S_s.imm4_0; 
+	uint32_t imm = ((uint32_t)(instruction.S_s.imm11_5) << 5) | instruction.S_s.imm4_0; 
 
     switch(instruction.S_s.funct3){
     	case 0x0:	// SB - 000
@@ -329,7 +333,74 @@ uint32_t S(InstructionUnion instruction){ // Something goes wrong when storing n
    return 0;
 }
 
+uint32_t B(InstructionUnion instruction){
+	uint32_t imm = ((uint32_t)(instruction.B_s.imm12) << 12)| ((uint32_t)(instruction.B_s.imm11) << 11) | ((uint32_t)(instruction.B_s.imm10_5) << 5) | ((uint32_t)(instruction.B_s.imm4_1) << 1); //the pieced together instruction.I_s.imm, under the assuption that instruction.I_s.imm[0] = 0;
+    
 
+	switch(instruction.B_s.funct3){
+		case 0x0: // beq - 000
+			if((int)Reg[instruction.B_s.rs1] == (int)Reg[instruction.B_s.rs2]){
+				pc = pc + imm;
+			}
+			break;
+		case 0x1: // bne - 001
+			if((int)Reg[instruction.B_s.rs1] != (int)Reg[instruction.B_s.rs2]){
+				pc = pc + imm;
+			}
+			break;
+		case 0x4: // blt - 100
+			if((int)Reg[instruction.B_s.rs1] < (int)Reg[instruction.B_s.rs2]){
+				pc = pc + imm;
+			}
+			break;
+		case 0x5: // bge - 101 
+			if((int)Reg[instruction.B_s.rs1] >= (int)Reg[instruction.B_s.rs2]){
+				pc = pc + imm;
+			}
+			break;
+		case 0x6: // bltu - 110
+			if(Reg[instruction.B_s.rs1] < Reg[instruction.B_s.rs2]){
+				pc = pc + imm;
+			}
+			break;
+		case 0x7: // bgeu - 111
+			if(Reg[instruction.B_s.rs1] >= Reg[instruction.B_s.rs2]){
+				pc = pc + imm;
+			}
+			break;	
+	}
+	return 0;
+}
+
+uint32_t U(InstructionUnion){
+    uint32_t imm = (uint32_t)(instruction.U_s.imm) << 12;
+
+    switch(instruction.U_s.opcode){
+    	case 0x37: // AUIPC - 0110111
+    		Reg[instruction.U_s.rd] = pc + imm;
+    		break;
+    	case 0x17: // LUI - 0010111
+    		Reg[instruction.U_s.rd] = imm;
+    		break;
+    	default:
+    		break;
+    }
+    return 0;
+}
+
+uint32_t J(InstructionUnion){
+    uint32_t imm = ((uint32_t)(instruction.J_s.imm20) << 20) | ((uint32_t)(instruction.J_s.imm19_12) << 12) | ((uint32_t)(instruction.J_s.imm11) << 11) | ((uint32_t)(instruction.J_s.imm10_1) << 1);
+    
+    switch(instruction.J_s.opcode){
+    	case 0x6F: // JAL - 1101111
+    		Reg[instruction.J_s.rd] = pc + 1;
+    		pc = pc + imm;
+    		break;
+    	default:
+    		break;
+    }
+    return 0;
+}
 
 
 char whatKindOfInstruction(InstructionUnion instruction){ // Looks at the opcode (and in one case funct3) and figures out which type of
@@ -398,7 +469,7 @@ int main(){
 
 		switch(instructionType){
 			case 'R':
-//				R(instruction);
+				R(instruction);
 				cout << instructionType << endl;
 				break;
 			case 'I':
