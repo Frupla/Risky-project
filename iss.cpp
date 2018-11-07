@@ -202,15 +202,17 @@ uint32_t debug(){ // This uses a weird syntax, but tbh, it is far better than wr
 			instruction.I_s.rs1 = A[2];
 			instruction.I_s.imm = A[3];
 			break;
-		case 2: // A[0] = sw, A[1] = rs1, A[2] = rs2, A[3] = imm
+		case 2: // A[0] = sw, A[1] = rs2, A[2] = rs1, A[3] = imm
 			instruction.S_s.opcode = 0x23;
-			instruction.S_s.rs1 = A[1];
+			instruction.S_s.rs2 = A[1];
 			instruction.S_s.funct3 = 0x02;
-			instruction.S_s.rs2 = A[2];
+			instruction.S_s.rs1 = A[2];
 			instruction.S_s.imm4_0 = A[3]; // this should be kept below 15 (yes this is shitty Irene, but it is just for debugging)
 			break;
 		case 3:
 			instruction.R_s.opcode = 0x33;
+		case 4:
+			instruction.B_s.opcode = 0x73;
 		default : 
 			break;
 	}
