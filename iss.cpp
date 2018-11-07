@@ -3,7 +3,8 @@
 
 
 //TODO: ask TA's about how to implement SLLI, SRLI and SRAI
-
+//      ask TA's if we can always assume programs end on ecall, or on newline or what
+//					essentially what are the end conditions for a program
 using namespace std;
 
 
@@ -223,7 +224,7 @@ uint32_t debug(){ // This uses a weird syntax, but tbh, it is far better than wr
 			instruction.S_s.rs1 = A[2];
 			instruction.S_s.imm4_0 = A[3]; // this should be kept below 15 (yes this is shitty Irene, but it is just for debugging)
 			break;
-		case 3: // A[0] = add, A[1] = rd, A[2] = rs1, A[3] = rs2
+		case 3: // A[0] = add, A[1] = rs2, A[2] = rs1, A[3] = rs2
 			instruction.R_s.opcode = 0x33;
 			instruction.R_s.rd = A[1];
 			instruction.R_s.funct3 = 0x0;
@@ -231,7 +232,15 @@ uint32_t debug(){ // This uses a weird syntax, but tbh, it is far better than wr
 			instruction.R_s.rs2 = A[3];
 			instruction.R_s.funct7 = 0x0;
 			break;
-		case 4:
+		case 4: // A[0] = sra, A[1] = rs2, A[2] = rs1, A[3] = rs2
+			instruction.R_s.opcode = 0x33; //011 0011 
+			instruction.R_s.rd = A[1];
+			instruction.R_s.funct3 = 0x5; //101
+			instruction.R_s.rs1 = A[2];
+			instruction.R_s.rs2 = A[3];
+			instruction.R_s.funct7 = 0x20; //010 0000 
+			break;
+		case 5:
 			instruction.B_s.opcode = 0x73;
 		default : 
 			break;
@@ -252,7 +261,7 @@ uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 		case 0x08293://SRAI 0 1000 0010 1001 0011 = 0x08293
 			break; */
 		case 0x00033: //ADD 0 0000 0000 0011 0011 = 0x0033
-			Reg[instruction.R_s.rd] = ((int)Reg[instruction.R_s.rs1] + (int)Reg[instruction.R_s.rs2]); 
+			Reg[instruction.R_s.rd] = (int)Reg[instruction.R_s.rs1] + (int)Reg[instruction.R_s.rs2]; 
 			break;
 		case 0x08033: //SUB 0 1000 0000 0011 0011 = 0x08033
 			Reg[instruction.R_s.rd] = (int)Reg[instruction.R_s.rs1] - (int)Reg[instruction.R_s.rs2];
@@ -266,13 +275,13 @@ uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 		case 0x001b3: // SLTU 0 0000 0001 1011 0011 = 0x001b3
 			Reg[instruction.R_s.rd] = (Reg[instruction.R_s.rs1] < Reg[instruction.R_s.rs2]) ? 1 : 0;
 			break;
-		case 0x0233: // XOR 0 0000 0010 0011 0011 = 0x0233
+		case 0x00233: // XOR 0 0000 0010 0011 0011 = 0x0233
 			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] ^ Reg[instruction.R_s.rs2];	
 			break;
 		case 0x002b3: //SRL 0 0000 0010 1011 0011 = 0x002b3, unsigned shift
 			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] >> Reg[instruction.R_s.rs2];
 			break;
-		case 0x082b3: //SRA 0 1000 0010 1011 0011 = 0x082b2, signed shift
+		case 0x082b3: //SRA 0 1000 0010 1011 0011 = 0x082b3, signed shift
 			Reg[instruction.R_s.rd] = signExtend((Reg[instruction.R_s.rs1] >> Reg[instruction.R_s.rs2]), 31-Reg[instruction.R_s.rs2]);
 			break;
 		case 0x00333: //OR 0 0000 0011 0011 0011 = 0x00333
