@@ -418,10 +418,10 @@ uint32_t U(InstructionUnion instruction){
     uint32_t imm = (uint32_t)(instruction.U_s.imm31_12) << 12;
 
     switch(instruction.U_s.opcode){
-    	case 0x37: // AUIPC - 0110111
+    	case 0x17: // AUIPC - 0010111
     		Reg[instruction.U_s.rd] = pc + imm;
     		break;
-    	case 0x17: // LUI - 0010111
+    	case 0x37: // LUI - 0110111
     		Reg[instruction.U_s.rd] = imm;
     		break;
     	default:
