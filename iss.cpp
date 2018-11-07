@@ -148,7 +148,7 @@ void setMemoryToZero(){
 void printMemory(){
 	for (int i = 0; i <= lengthOfMemory; i++){
 		if(Memory[i] != 0){
-			cout << "Memory[" << i << "] = " << (int)Memory[i] << endl;
+			cout << "Memory[" << i << "] = " << hex << (int)Memory[i] << endl;
 		}
 	}
 }
@@ -176,7 +176,7 @@ uint32_t signExtend(uint32_t toBeExtended, uint32_t msb){ // takes an uint, and 
 void shittyInput(){
 	uint16_t input;
 	int i = 0;
-	while(input != 0x73000000){ // - Break when Ecall
+	while(input != 0x7300){ // - Break when Ecall
 		cin >> hex >> input;
 
 		Memory[i] = (uint8_t)(input>>byte);
@@ -295,7 +295,7 @@ uint32_t I(InstructionUnion instruction){
 
 	switch(encoding){
 		case 0x67: // JALR - 0110 0111
-			Reg[instruction.I_s.rd] = ++pc;
+			Reg[instruction.I_s.rd] = pc + 4;
 			pc = Reg[instruction.I_s.rs1] + instruction.I_s.imm;
 			break;
 		case 0x03: // LB - 0000 0011
@@ -336,7 +336,7 @@ uint32_t I(InstructionUnion instruction){
 }
 
 
-uint32_t S(InstructionUnion instruction){ // Something goes wrong when storing numbers in more than one byte, maybe the problems is in loading
+uint32_t S(InstructionUnion instruction){ 
 	uint32_t imm = ((uint32_t)(instruction.S_s.imm11_5) << 5) | instruction.S_s.imm4_0; 
 
     switch(instruction.S_s.funct3){
@@ -420,7 +420,7 @@ uint32_t J(InstructionUnion instruction){
     
     switch(instruction.J_s.opcode){
     	case 0x6F: // JAL - 1101111
-    		Reg[instruction.J_s.rd] = pc + 1;
+    		Reg[instruction.J_s.rd] = pc + 4;
     		pc = pc + imm;
     		break;
     	default:
@@ -486,10 +486,13 @@ int main(){
 	uint32_t branchInstruction = 0;
 	initRegister();
 	setMemoryToZero();
-
+	shittyInput();
 	while(pc < pcmax){
-		instruction.instruction = debug();
+		//instruction.instruction = debug();
 		//instruction.instruction = prog[pc];
+
+		instruction.instruction = Memory[pc] | Memory[pc+1] << byte | Memory[pc + 2] << 2*byte | Memory[pc + 3] << 3*byte;
+
 
 		instructionType = whatKindOfInstruction(instruction);
 
@@ -508,15 +511,15 @@ int main(){
 				cout << instructionType << endl;
 				break;
 			case 'U':
-//				U(instruction);
+				U(instruction);
 				cout << instructionType << endl;
 				break;
 			case 'B':
-//				B(instruction);
+				B(instruction);
 				cout << instructionType << endl;
 				break;
 			case 'J':
-//				J(instruction);
+				J(instruction);
 				cout << instructionType << endl;
 				break;
 			case 'X':
@@ -535,7 +538,7 @@ int main(){
 		}
 		flag = true;
 
-		pc++;
+		pc += 4;
 	}
 
 
