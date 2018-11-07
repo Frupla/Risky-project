@@ -149,14 +149,14 @@ void setMemoryToZero(){
 void printMemory(){
 	for (int i = 0; i <= lengthOfMemory; i++){
 		if(Memory[i] != 0){
-			cout << "Memory[" << i << "] = " << (int)Memory[i] << endl;
+			cout << "Memory[" << dec << i << "] = " << hex << (int)Memory[i] << endl;
 		}
 	}
 }
 
 void printRegister(){
 	for(int i = 0; i < 32; i++){
-		cout << "x" << i << " = " << Reg[i] << endl;
+		cout << "x" << dec << i << " = " << dec << (int)Reg[i] << endl;
 	}
 }
 
@@ -177,9 +177,8 @@ uint32_t signExtend(uint32_t toBeExtended, uint32_t msb){ // takes an uint, and 
 void shittyInput(){
 	uint16_t input;
 	int i = 0;
-	while(input != 0x73000000){ // - Break when Ecall
+	while(input != 0x7300){ // - Break when Ecall
 		cin >> hex >> input;
-
 		Memory[i] = (uint8_t)(input>>byte);
 		i++;
 		Memory[i] = (uint8_t)(input);
@@ -225,7 +224,11 @@ uint32_t debug(){ // This uses a weird syntax, but tbh, it is far better than wr
 			instruction.S_s.rs1 = A[2];
 			instruction.S_s.imm4_0 = A[3]; // this should be kept below 15 (yes this is shitty Irene, but it is just for debugging)
 			break;
+<<<<<<< HEAD
 		case 3: // A[0] = add, A[1] = rs2, A[2] = rs1, A[3] = rs2
+=======
+		case 3: // A[0] = add, A[1] = rd, A[2] = rs1, A[3] = rs2
+>>>>>>> af81bb2a194d4b95d550203beac239b9df697e85
 			instruction.R_s.opcode = 0x33;
 			instruction.R_s.rd = A[1];
 			instruction.R_s.funct3 = 0x0;
@@ -305,7 +308,7 @@ uint32_t I(InstructionUnion instruction){
 
 	switch(encoding){
 		case 0x67: // JALR - 0110 0111
-			Reg[instruction.I_s.rd] = ++pc;
+			Reg[instruction.I_s.rd] = pc + 4;
 			pc = Reg[instruction.I_s.rs1] + instruction.I_s.imm;
 			break;
 		case 0x03: // LB - 0000 0011
@@ -346,7 +349,7 @@ uint32_t I(InstructionUnion instruction){
 }
 
 
-uint32_t S(InstructionUnion instruction){ // Something goes wrong when storing numbers in more than one byte, maybe the problems is in loading
+uint32_t S(InstructionUnion instruction){ 
 	uint32_t imm = ((uint32_t)(instruction.S_s.imm11_5) << 5) | instruction.S_s.imm4_0; 
 
     switch(instruction.S_s.funct3){
@@ -430,7 +433,7 @@ uint32_t J(InstructionUnion instruction){
     
     switch(instruction.J_s.opcode){
     	case 0x6F: // JAL - 1101111
-    		Reg[instruction.J_s.rd] = pc + 1;
+    		Reg[instruction.J_s.rd] = pc + 4;
     		pc = pc + imm;
     		break;
     	default:
@@ -487,50 +490,45 @@ char whatKindOfInstruction(InstructionUnion instruction){ // Looks at the opcode
 
 
 int main(){
-	bool flag = true;
-	uint32_t prog[100];
-	int pcmax = 100; // This should be the length of the prog array
+	bool flag = true, notAtTheEnd = true;
 	InstructionUnion instruction;
 	//instruction.instruction = 0x408505b3;
 	char instructionType;
 	uint32_t branchInstruction = 0;
 	initRegister();
 	setMemoryToZero();
-
-	while(pc < pcmax){
-		instruction.instruction = debug();
+	shittyInput();
+	while(notAtTheEnd){
+		//instruction.instruction = debug();
 		//instruction.instruction = prog[pc];
+
+		instruction.instruction = Memory[pc] | Memory[pc+1] << byte | Memory[pc + 2] << 2*byte | Memory[pc + 3] << 3*byte;
+
 
 		instructionType = whatKindOfInstruction(instruction);
 
 		switch(instructionType){
 			case 'R':
 				R(instruction);
-				cout << instructionType << endl;
 				break;
 			case 'I':
 				I(instruction);
-				cout << instructionType << endl;
 				break;
 			case 'S':
 				S(instruction);
-				cout << instructionType << endl;
 				break;
 			case 'U':
-//				U(instruction);
-				cout << instructionType << endl;
+				U(instruction);
 				break;
 			case 'B':
-//				B(instruction);
-				cout << instructionType << endl;
+				B(instruction);
 				break;
 			case 'J':
-//				J(instruction);
-				cout << instructionType << endl;
+				J(instruction);
 				break;
 			case 'X':
-				pc = pcmax;
 				cout << "closing" << endl;
+				notAtTheEnd = false;
 				break;
 			default:
 				flag = false;
@@ -544,7 +542,7 @@ int main(){
 		}
 		flag = true;
 
-		pc++;
+		pc += 4;
 	}
 
 
