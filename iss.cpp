@@ -245,22 +245,22 @@ uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 			Reg[instruction.R_s.rd] = (int)Reg[instruction.R_s.rs1] - (int)Reg[instruction.R_s.rs2];
 			break;
 		case 0x00b3://SLL 0 0000 0000 1011 0011 = 0x000b3
-			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] << R[instruction.R_s.rs2];	
+			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] << Reg[instruction.R_s.rs2];	
 			break;
 		case 0x000133://SLT 0 0000 0001 0011 0011 = 0x00133
-			Reg[instruction.R_s.rd] = ((int)R[rs1] < (int)R[rs2]) ? 1 : 0;
+			Reg[instruction.R_s.rd] = ((int)Reg[instruction.R_s.rs1] < (int)Reg[instruction.R_s.rs2]) ? 1 : 0;
 			break;
 		case 0x001b3: // SLTU 0 0000 0001 1011 0011 = 0x001b3
-			Reg[instruction.R_s.rd] = (R[rs1] < R[rs2]) ? 1 : 0;
+			Reg[instruction.R_s.rd] = (Reg[instruction.R_s.rs1] < Reg[instruction.R_s.rs2]) ? 1 : 0;
 			break;
 		case 0x0233: // XOR 0 0000 0010 0011 0011 = 0x0233
 			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] ^ Reg[instruction.R_s.rs2];	
 			break;
 		case 0x002b3: //SRL 0 0000 0010 1011 0011 = 0x002b3, unsigned shift
-			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] >> R[instruction.R_s.rs2];
+			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] >> Reg[instruction.R_s.rs2];
 			break;
 		case 0x0b2b2: //SRA 0 1000 0010 1011 0011 = 0x082b2, signed shift
-			Reg[instruction.R_s.rd] = signExtend((Reg[instruction.R_s.rs1] >> R[instruction.R_s.rs2]), 31-R[instruction.R_s.rs2]);
+			Reg[instruction.R_s.rd] = signExtend((Reg[instruction.R_s.rs1] >> Reg[instruction.R_s.rs2]), 31-Reg[instruction.R_s.rs2]);
 			break;
 		case 0x00333: //OR 0 0000 0011 0011 0011 = 0x00333
 			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] | Reg[instruction.R_s.rs2];	
@@ -385,8 +385,8 @@ uint32_t B(InstructionUnion instruction){
 	return 0;
 }
 
-uint32_t U(InstructionUnion){
-    uint32_t imm = (uint32_t)(instruction.U_s.imm) << 12;
+uint32_t U(InstructionUnion instruction){
+    uint32_t imm = (uint32_t)(instruction.U_s.imm31_12) << 12;
 
     switch(instruction.U_s.opcode){
     	case 0x37: // AUIPC - 0110111
@@ -401,7 +401,7 @@ uint32_t U(InstructionUnion){
     return 0;
 }
 
-uint32_t J(InstructionUnion){
+uint32_t J(InstructionUnion instruction){
     uint32_t imm = ((uint32_t)(instruction.J_s.imm20) << 20) | ((uint32_t)(instruction.J_s.imm19_12) << 12) | ((uint32_t)(instruction.J_s.imm11) << 11) | ((uint32_t)(instruction.J_s.imm10_1) << 1);
     
     switch(instruction.J_s.opcode){
