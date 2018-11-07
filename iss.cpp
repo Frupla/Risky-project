@@ -148,14 +148,14 @@ void setMemoryToZero(){
 void printMemory(){
 	for (int i = 0; i <= lengthOfMemory; i++){
 		if(Memory[i] != 0){
-			cout << "Memory[" << i << "] = " << hex << (int)Memory[i] << endl;
+			cout << "Memory[" << dec << i << "] = " << hex << (int)Memory[i] << endl;
 		}
 	}
 }
 
 void printRegister(){
 	for(int i = 0; i < 32; i++){
-		cout << "x" << i << " = " << Reg[i] << endl;
+		cout << "x" << dec << i << " = " << dec << (int)Reg[i] << endl;
 	}
 }
 
@@ -178,7 +178,6 @@ void shittyInput(){
 	int i = 0;
 	while(input != 0x7300){ // - Break when Ecall
 		cin >> hex >> input;
-
 		Memory[i] = (uint8_t)(input>>byte);
 		i++;
 		Memory[i] = (uint8_t)(input);
@@ -224,7 +223,7 @@ uint32_t debug(){ // This uses a weird syntax, but tbh, it is far better than wr
 			instruction.S_s.rs1 = A[2];
 			instruction.S_s.imm4_0 = A[3]; // this should be kept below 15 (yes this is shitty Irene, but it is just for debugging)
 			break;
-		case 3:
+		case 3: // A[0] = add, A[1] = rd, A[2] = rs1, A[3] = rs2
 			instruction.R_s.opcode = 0x33;
 			instruction.R_s.rd = A[1];
 			instruction.R_s.funct3 = 0x0;
@@ -477,9 +476,7 @@ char whatKindOfInstruction(InstructionUnion instruction){ // Looks at the opcode
 
 
 int main(){
-	bool flag = true;
-	uint32_t prog[100];
-	int pcmax = 100; // This should be the length of the prog array
+	bool flag = true, notAtTheEnd = true;
 	InstructionUnion instruction;
 	//instruction.instruction = 0x408505b3;
 	char instructionType;
@@ -487,7 +484,7 @@ int main(){
 	initRegister();
 	setMemoryToZero();
 	shittyInput();
-	while(pc < pcmax){
+	while(notAtTheEnd){
 		//instruction.instruction = debug();
 		//instruction.instruction = prog[pc];
 
@@ -499,31 +496,25 @@ int main(){
 		switch(instructionType){
 			case 'R':
 				R(instruction);
-				cout << instructionType << endl;
 				break;
 			case 'I':
 				I(instruction);
-				cout << instructionType << endl;
 				break;
 			case 'S':
 				S(instruction);
-				cout << instructionType << endl;
 				break;
 			case 'U':
 				U(instruction);
-				cout << instructionType << endl;
 				break;
 			case 'B':
 				B(instruction);
-				cout << instructionType << endl;
 				break;
 			case 'J':
 				J(instruction);
-				cout << instructionType << endl;
 				break;
 			case 'X':
-				pc = pcmax;
 				cout << "closing" << endl;
+				notAtTheEnd = false;
 				break;
 			default:
 				flag = false;
