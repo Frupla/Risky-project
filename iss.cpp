@@ -100,6 +100,14 @@ union InstructionUnion {
     } I_s;
     struct {
         uint32_t opcode: 7;
+        uint32_t rd: 5;
+        uint32_t funct3: 3;
+        uint32_t rs1: 5;
+        uint32_t shamt: 5;
+        uint32_t funct7: 7;
+    } II_s;
+    struct {
+        uint32_t opcode: 7;
         uint32_t imm4_0: 5;
         uint32_t funct3: 3;
         uint32_t rs1: 5;
@@ -168,6 +176,7 @@ void initRegister(){ // Sets every value in the register to be zero
 }
 
 uint32_t signExtend(uint32_t toBeExtended, uint32_t msb){ // takes an uint, and the msb (0-indexed) of that uint, then sign extends accordingly
+	cout<< hex << 's' << toBeExtended << '|' << msb << '|' << (0xFFFFFFF << (1+msb)) << '\n';
 	if(toBeExtended & (1 << msb)){
 		return	toBeExtended | (0xFFFFFFF << (1 + msb));
 	}else{
@@ -251,16 +260,12 @@ uint32_t debug(){ // This uses a weird syntax, but tbh, it is far better than wr
 
 }
 
+//111111111111111000000010
+//11111111000000000000000111111110
 
 uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 	uint32_t encoding =  ((uint32_t)(instruction.R_s.funct7) << 10) | ((uint32_t)(instruction.R_s.funct3) << 7) | instruction.R_s.opcode; // funct7, funct3 and opcode informs us what instruction we are dealing with
 	switch(encoding){
-		/*case 0x00093://SLLI 0 0000 0000 1001 0011 = 0x00093 //ASK TA
-			break;
-		case 0x00293://SRLI 0 0000 0010 1001 0011 = 0x00293
-			break;
-		case 0x08293://SRAI 0 1000 0010 1001 0011 = 0x08293
-			break; */
 		case 0x00033: //ADD 0 0000 0000 0011 0011 = 0x0033
 			Reg[instruction.R_s.rd] = (int)Reg[instruction.R_s.rs1] + (int)Reg[instruction.R_s.rs2]; 
 			break;
@@ -283,7 +288,7 @@ uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] >> Reg[instruction.R_s.rs2];
 			break;
 		case 0x082b3: //SRA 0 1000 0010 1011 0011 = 0x082b3, signed shift
-			Reg[instruction.R_s.rd] = signExtend((Reg[instruction.R_s.rs1] >> Reg[instruction.R_s.rs2]), 31-Reg[instruction.R_s.rs2]);
+			Reg[instruction.R_s.rd] = (int)Reg[instruction.R_s.rs1] >> Reg[instruction.R_s.rs2];
 			break;
 		case 0x00333: //OR 0 0000 0011 0011 0011 = 0x00333
 			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] | Reg[instruction.R_s.rs2];	
@@ -340,6 +345,19 @@ uint32_t I(InstructionUnion instruction){
 		case 0x393: // ANDI - 0011 1001 0011
 			Reg[instruction.I_s.rd] = Reg[instruction.I_s.rs1] & instruction.I_s.imm;
 			break;
+		case 0x093: // SLLI 0000 1001 0011 = 0x00093 //ASK TA
+			Reg[instruction.II_s.rd] = Reg[instruction.II_s.rs1] << instruction.II_s.shamt;
+			break;
+		case 0x293: // SRLI 0010 1001 0011 = 0x00293 	
+			if (instruction.II_s.funct7 == 0){
+				Reg[instruction.II_s.rd] = Reg[instruction.II_s.rs1] >> instruction.II_s.shamt;
+			} else{ // SRAI 0 1000
+				Reg[instruction.II_s.rd] = ((int)Reg[instruction.II_s.rs1] >> instruction.II_s.shamt); //arithmatic right shifting is a thing in C++, but only for signed integers
+			}
+			break;
+		//case 0x08293://SRAI 0 1000 0010 1001 0011 = 0x08293 //just shift w. shamt in rs2's place
+		//	Reg[instruction.R_s.rd] = signExtend((Reg[instruction.R_s.rs1] >> Reg[instruction.R_s.rs2]), 31-Reg[instruction.R_s.rs2]);
+		//	break; 
 		default:
 			cout << "Not a recognized I-type instruction" << endl;
 	}
@@ -449,7 +467,7 @@ uint32_t J(InstructionUnion instruction){
 
 char whatKindOfInstruction(InstructionUnion instruction){ // Looks at the opcode (and in one case funct3) and figures out which type of
 														  // Instruction we are dealing with
-	switch(instruction.B_s.opcode){
+	switch(instruction.B_s.opcode){ //001 0011 = 0x313
 		case 0x23 : // S - type
 			return 'S';
 			break;
@@ -473,7 +491,7 @@ char whatKindOfInstruction(InstructionUnion instruction){ // Looks at the opcode
 			break;
 		case 0x13 : // I OR R - type
 			if((instruction.R_s.funct3 != 0x1000) && (instruction.R_s.funct3 != 0x5000)){ // Handling the #NotAllinstruction.I_s.immediates problem
-																						  //Please note that it could have been instruction.I_s.funct3
+				cout << 'I' << instruction.R_s.funct3 << '\n';																		  //Please note that it could have been instruction.I_s.funct3
 				return 'I';
 			}else{
 				return 'R';
@@ -553,3 +571,11 @@ int main(){
 
 	return 0;
 }
+
+/*
+List of tests:
+addlarge  - success
+addneg - success
+addpos - success
+shift - NOPE
+*/

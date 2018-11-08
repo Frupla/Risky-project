@@ -1,0 +1,16 @@
+
+#include <iostream>
+#include <stdint.h>
+
+//all bitshifting is arithmetic
+//once shiftet a value /stays/ shifted
+
+int main(){
+	uint8_t i = 0xf0;
+	cout << i << '\n';
+	i << 2;
+	cout << i <<'\n';
+	i >>2;
+	cout << i <<'\n';
+	return 0;
+}
