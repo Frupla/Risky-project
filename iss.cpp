@@ -176,7 +176,6 @@ void initRegister(){ // Sets every value in the register to be zero
 }
 
 uint32_t signExtend(uint32_t toBeExtended, uint32_t msb){ // takes an uint, and the msb (0-indexed) of that uint, then sign extends accordingly
-	cout<< hex << 's' << toBeExtended << '|' << msb << '|' << (0xFFFFFFF << (1+msb)) << '\n';
 	if(toBeExtended & (1 << msb)){
 		return	toBeExtended | (0xFFFFFFF << (1 + msb));
 	}else{
@@ -391,38 +390,41 @@ uint32_t S(InstructionUnion instruction){
 }
 
 uint32_t B(InstructionUnion instruction){
-	uint32_t imm = ((uint32_t)(instruction.B_s.imm12) << 12)| ((uint32_t)(instruction.B_s.imm11) << 11) | ((uint32_t)(instruction.B_s.imm10_5) << 5) | ((uint32_t)(instruction.B_s.imm4_1) << 1); //the pieced together instruction.I_s.imm, under the assuption that instruction.I_s.imm[0] = 0;
+	uint32_t imm = signExtend(((uint32_t)(instruction.B_s.imm12) << 12)| ((uint32_t)(instruction.B_s.imm11) << 11) | ((uint32_t)(instruction.B_s.imm10_5) << 5) | ((uint32_t)(instruction.B_s.imm4_1) << 1),11); //the pieced together instruction.I_s.imm, under the assuption that instruction.I_s.imm[0] = 0;
     
+
+
+	cout << "immediate = " << hex << imm << endl;
 
 	switch(instruction.B_s.funct3){
 		case 0x0: // beq - 000
 			if((int)Reg[instruction.B_s.rs1] == (int)Reg[instruction.B_s.rs2]){
-				pc = pc + imm;
+				pc = pc + (int)imm - 4; // The -4 is to compensate for the fact that we always add 4 at the end of the loop
 			}
 			break;
 		case 0x1: // bne - 001
 			if((int)Reg[instruction.B_s.rs1] != (int)Reg[instruction.B_s.rs2]){
-				pc = pc + imm;
+				pc = pc + (int)imm - 4;
 			}
 			break;
 		case 0x4: // blt - 100
 			if((int)Reg[instruction.B_s.rs1] < (int)Reg[instruction.B_s.rs2]){
-				pc = pc + imm;
+				pc = pc + (int)imm - 4;
 			}
 			break;
 		case 0x5: // bge - 101 
 			if((int)Reg[instruction.B_s.rs1] >= (int)Reg[instruction.B_s.rs2]){
-				pc = pc + imm;
+				pc = pc + (int)imm - 4;
 			}
 			break;
 		case 0x6: // bltu - 110
 			if(Reg[instruction.B_s.rs1] < Reg[instruction.B_s.rs2]){
-				pc = pc + imm;
+				pc = pc + (int)imm - 4;
 			}
 			break;
 		case 0x7: // bgeu - 111
 			if(Reg[instruction.B_s.rs1] >= Reg[instruction.B_s.rs2]){
-				pc = pc + imm;
+				pc = pc + (int)imm - 4;
 			}
 			break;	
 		default:
@@ -491,7 +493,7 @@ char whatKindOfInstruction(InstructionUnion instruction){ // Looks at the opcode
 			break;
 		case 0x13 : // I OR R - type
 			if((instruction.R_s.funct3 != 0x1000) && (instruction.R_s.funct3 != 0x5000)){ // Handling the #NotAllinstruction.I_s.immediates problem
-				cout << 'I' << instruction.R_s.funct3 << '\n';																		  //Please note that it could have been instruction.I_s.funct3
+				cout << 'I' << " " << instruction.R_s.funct3 << '\n';					  //Please note that it could have been instruction.I_s.funct3
 				return 'I';
 			}else{
 				return 'R';
@@ -557,8 +559,8 @@ int main(){
 				cout << "Invalid input" << endl;
 				break;		
 		}
-
-		if(flag){
+		cout << "pc = " << dec << pc << endl;
+		if(flag){ // This just ensures that it doesn't print everything if it doesn't get a valid input.
 			printRegister();
 			printMemory();	
 		}
@@ -575,7 +577,7 @@ int main(){
 /*
 List of tests:
 addlarge  - success
-addneg - success
+addneg - success	
 addpos - success
-shift - NOPE
+shift - success
 */
