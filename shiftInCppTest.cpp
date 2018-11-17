@@ -28,8 +28,12 @@ int main(){
 i: f0 j: 0, f0 = 1111 0000, 0 = 0000 0000
 i: f0 j: c0,f0 = 1111 0000,c0 = 1100 0000
 i: f0 j: 3c,f0 = 1111 0000, j = 0011 1100
-
+int:
 ii: fffffffc jj: 0
 ii: fffffffc jj: fffffff0
 ii: fffffffc jj: ffffffff
+uint32_t
+i: fffffffc j: 0
+i: fffffffc j: fffffff0
+i: fffffffc j: 3fffffff
 */
