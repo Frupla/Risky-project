@@ -147,7 +147,7 @@ union InstructionUnion {
 static int lengthOfMemory = 1<<10;
 uint32_t Reg[32]; 		// The 32 registers
 uint32_t pc = 0; 		// the program counter
-uint8_t Memory[1<<10]; // the memory, an array of bytes of length 2^10
+uint8_t Memory[1<<20]; // the memory, an array of bytes of length 2^10
 uint32_t pcmax = 0;
 
 void setMemoryToZero(){
@@ -415,7 +415,7 @@ uint32_t S(InstructionUnion instruction){
 	int imm = signExtend(((instruction.S_s.imm11_5) << 5) | instruction.S_s.imm4_0,11); 
 
 	cout << "immediate is " << imm << endl;
-	cout << "Gonna try to save in Memory[" << (int)signExtend(Reg[instruction.S_s.rs1],11) << " + " << imm << "]" << endl;
+	cout << "Gonna try to save in Memory[" << (int)signExtend(Reg[instruction.S_s.rs1],11) << " + " << imm << "] in Reg[" <<(int)signExtend(instruction.S_s.rs2,11) << "]"<< endl;
     switch(instruction.S_s.funct3){
     	case 0x0:	// SB - 000
     		Memory[(int)signExtend(Reg[instruction.S_s.rs1],11) + imm 	 ] =  Reg[instruction.S_s.rs2] 			& 0xFF; // Only stores the first byte
@@ -563,7 +563,7 @@ char whatKindOfInstruction(InstructionUnion instruction){ // Looks at the opcode
 
 
 int main(){
-	bool flag = false, notAtTheEnd = true;
+	bool flag = true, notAtTheEnd = true;
 	InstructionUnion instruction;
 	char instructionType;
 	uint32_t branchInstruction = 0;
@@ -573,12 +573,10 @@ int main(){
 	if(readFileIntoMemory()){
 		return 0;
 	}
-	printMemory();
 	printProgram(pcmax);
 	while(notAtTheEnd){
 		cout << "started execution loop" << endl;
 		instruction.instruction = Memory[pc] | Memory[pc+1] << byte | Memory[pc + 2] << 2*byte | Memory[pc + 3] << 3*byte;
-
 
 		instructionType = whatKindOfInstruction(instruction);
 
@@ -613,12 +611,12 @@ int main(){
 		cout << "pc = " << dec << pc << endl;
 		if(flag){ // This just ensures that it doesn't print everything if it doesn't get a valid input.
 			printRegister();
-			printMemory();	
+			//printMemory();	
 		}
 		//flag = true;
 		pc += 4;
 	}
-	printMemory();
+	//printMemory();
 	printRegister();
 
 
