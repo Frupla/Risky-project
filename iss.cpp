@@ -147,11 +147,7 @@ union InstructionUnion {
 static int lengthOfMemory = 1<<20;
 uint32_t Reg[32]; 		// The 32 registers
 uint32_t pc = 0; 		// the program counter
-<<<<<<< HEAD
-uint8_t Memory[1<<20]; // the memory, an array of bytes of length 2^10
-=======
 uint8_t Memory[1<<20]; // the memory, an array of bytes of length 2^20
->>>>>>> f691f8d4412d683ee31f694e08afec3c0835219e
 uint32_t pcmax = 0;
 
 void setMemoryToZero(){
@@ -419,12 +415,8 @@ uint32_t S(InstructionUnion instruction){
 	int imm = signExtend(((instruction.S_s.imm11_5) << 5) | instruction.S_s.imm4_0,11); 
 
 	cout << "immediate is " << imm << endl;
-<<<<<<< HEAD
+
 	cout << "Gonna try to save in Memory[" << (int)signExtend(Reg[instruction.S_s.rs1],11) << " + " << imm << "] in Reg[" <<(int)signExtend(instruction.S_s.rs2,11) << "]"<< endl;
-=======
-	cout << "Gonna try to save in Memory[" << Reg[instruction.S_s.rs1] << " + " << imm << "]" << endl;
-	cout << "Register adress is " << instruction.S_s.rs1 << endl;
->>>>>>> f691f8d4412d683ee31f694e08afec3c0835219e
     switch(instruction.S_s.funct3){
     	case 0x0:	// SB - 000
     		Memory[Reg[instruction.S_s.rs1] + imm 	 ] =  Reg[instruction.S_s.rs2] 			& 0xFF; // Only stores the first byte
