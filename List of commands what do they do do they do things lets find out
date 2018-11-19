@@ -1,0 +1,39 @@
+List of commands | has it been tested | does it work? | in what code
+ADD 		     | y                  |               |  addpos, addneg, agglarge,ect 
+SUB				 | 
+SLL				 |
+SLT 			 |
+SLTU			 |
+XOR				 |
+SRL				 |
+SRA				 |
+OR				 | y 				  | n  			  | loop
+AND				 |
+JARL			 | y 				  | n  			  | loop
+LB				 |
+LH				 |
+LW				 | y 				  | n  			  | loop
+LBU				 |
+LHU				 |
+ADDI			 | y                  |               |  addpos, addneg, agglarge,ect
+SLTI			 |
+SLTIU			 |
+XORI			 |
+ORI 			 |
+ANDI			 |
+SLLI			 | y                  | y             |  shift
+SRLI			 |
+SRAI			 | y                  | y             |  shift
+SB				 |
+SH				 |
+SW				 | y 				  | n  			  | loop
+bep				 |
+bne				 | y                  | y             |  branchcnt
+blt				 | y                  | y             |  branchcnt
+bgt				 |
+bltu			 |
+bgeu			 |
+AUIPC			 |
+LUI				 | y                  | y             | shift
+JAL				 | y 				  | n  			  | loop
+ecall		     | y
