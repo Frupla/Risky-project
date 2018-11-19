@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdint.h>
-
+#include <fstream>
+#include <string.h>
 
 //TODO: ask TA's about how to implement SLLI, SRLI and SRAI
 //      ask TA's if we can always assume programs end on ecall, or on newline or what
@@ -146,7 +147,7 @@ union InstructionUnion {
 static int lengthOfMemory = 1<<10;
 uint32_t Reg[32]; 		// The 32 registers
 uint32_t pc = 0; 		// the program counter
-uint8_t Memory[1<<10]; // the memory, an array of bytes of length 2^13 
+uint8_t Memory[1<<10]; // the memory, an array of bytes of length 2^10
 
 void setMemoryToZero(){
 	for(int i = 0; i <= lengthOfMemory; i++){
@@ -193,6 +194,37 @@ void shittyInput(){
 		Memory[i] = (uint8_t)(input);
 		i++;
 	}
+}
+
+bool readFileIntoMemory(){
+	string filename;
+	cin >> filename;
+	int i = 0;
+	streampos fileSize;
+
+	char * temporaryMemory;
+	temporaryMemory = new char [2];
+	ifstream file (filename, ios::in|ios::binary|ios::ate);//open file and set pointer at end of file
+	if (file.is_open())
+	{
+		cout << "file is open" << '\n' << endl;
+		fileSize = file.tellg(); //use pointer to get file size
+		file.seekg (0, ios::beg); //set pointer to beginning of file 
+		while(file.tellg() < fileSize){
+			file.read (temporaryMemory, 2*sizeof(char)); //should also update file pointer
+			cout << hex << "1: "<< (int)temporaryMemory[0] <<  endl;
+			cout << hex << "2: "<< (int)temporaryMemory[1] <<  endl;
+			Memory[i] = (uint8_t)temporaryMemory[0];
+			i++;
+			Memory[i] = (uint8_t)temporaryMemory[1];
+			i++;
+		}
+	}	else 
+	{
+		cout << "Unable to open file" << endl;
+		return 1;
+	}	
+	return 0;
 }
 
 uint32_t debug(){ // This uses a weird syntax, but tbh, it is far better than writing in commands as long decimals
@@ -521,7 +553,10 @@ int main(){
 	uint32_t branchInstruction = 0;
 	initRegister();
 	setMemoryToZero();
-	shittyInput();
+	//shittyInput();
+	if(readFileIntoMemory()){
+		return 0;
+	}
 	while(notAtTheEnd){
 		//instruction.instruction = debug();
 		//instruction.instruction = prog[pc];
@@ -568,7 +603,7 @@ int main(){
 
 		pc += 4;
 	}
-
+	
 
 
 	return 0;
