@@ -223,8 +223,6 @@ bool readFileIntoMemory(){
 		file.seekg (0, ios::beg); //set pointer to beginning of file 
 
 		while(file.tellg() <= fileSize-(streampos)2){
-			cout << file.tellg() << " < " << fileSize << endl;
-			cout << "reading " << i << endl;
 			file.read (temporaryMemory, 2*sizeof(char)); //should also update file pointer
 			Memory[i] = (uint8_t)temporaryMemory[0];
 			i++;
@@ -235,7 +233,7 @@ bool readFileIntoMemory(){
 		cout << "Unable to open file" << endl;
 		return 1;
 	}
-	pcmax = i/4;	
+	pcmax = i;	
 	return 0;
 }
 
@@ -409,22 +407,23 @@ uint32_t I(InstructionUnion instruction){
 
 
 uint32_t S(InstructionUnion instruction){ 
-	uint32_t imm = signExtend(((instruction.S_s.imm11_5) << 5) | instruction.S_s.imm4_0,11); 
+	int imm = signExtend(((instruction.S_s.imm11_5) << 5) | instruction.S_s.imm4_0,11); 
 
-
+	cout << "immediate is " << imm << endl;
+	cout << "Gonna try to save in Memory[" << (int)signExtend(Reg[instruction.S_s.rs1],11) << " + " << imm << "]" << endl;
     switch(instruction.S_s.funct3){
     	case 0x0:	// SB - 000
-    		Memory[signExtend(Reg[instruction.S_s.rs1],11) + (int)imm 	] =  Reg[instruction.S_s.rs2] 			 & 0xFF; // Only stores the first byte
+    		Memory[(int)signExtend(Reg[instruction.S_s.rs1],11) + imm 	 ] =  Reg[instruction.S_s.rs2] 			& 0xFF; // Only stores the first byte
     		break;
     	case 0x1:  	// SH - 001
-    		Memory[signExtend(Reg[instruction.S_s.rs1],11) + (int)imm 	] =  Reg[instruction.S_s.rs2] 			 & 0xFF; // First byte
-    		Memory[signExtend(Reg[instruction.S_s.rs1],11) + (int)imm + 1] = (Reg[instruction.S_s.rs2] >> byte)   & 0xFF; // Second byte     	 
+    		Memory[(int)signExtend(Reg[instruction.S_s.rs1],11) + imm 	 ] =  Reg[instruction.S_s.rs2] 			& 0xFF; // First byte
+    		Memory[(int)signExtend(Reg[instruction.S_s.rs1],11) + imm + 1] = (Reg[instruction.S_s.rs2] >> byte) & 0xFF; // Second byte     	 
     		break;
     	case 0x2:	// SW - 010
-	   		Memory[signExtend(Reg[instruction.S_s.rs1],11) + (int)imm 	  ] =   Reg[instruction.S_s.rs2] & 0xFF; 					 // First byte
-    		Memory[signExtend(Reg[instruction.S_s.rs1],11) + (int)imm + 1] = ((Reg[instruction.S_s.rs2] & 0xFF00) 	 >>   byte); // Second byte
-    		Memory[signExtend(Reg[instruction.S_s.rs1],11) + (int)imm + 2] = ((Reg[instruction.S_s.rs2] & 0xFF0000) 	 >> 2*byte); // Third byte
-    		Memory[signExtend(Reg[instruction.S_s.rs1],11) + (int)imm + 3] = ((Reg[instruction.S_s.rs2] & 0xFF000000) >> 3*byte); // What do you think byte
+	   		Memory[(int)signExtend(Reg[instruction.S_s.rs1],11) + imm 	 ] =   Reg[instruction.S_s.rs2] & 0xFF; 					 // First byte
+    		Memory[(int)signExtend(Reg[instruction.S_s.rs1],11) + imm + 1] = ((Reg[instruction.S_s.rs2] & 0xFF00) 	  >>   byte); // Second byte
+    		Memory[(int)signExtend(Reg[instruction.S_s.rs1],11) + imm + 2] = ((Reg[instruction.S_s.rs2] & 0xFF0000)   >> 2*byte); // Third byte
+    		Memory[(int)signExtend(Reg[instruction.S_s.rs1],11) + imm + 3] = ((Reg[instruction.S_s.rs2] & 0xFF000000) >> 3*byte); // What do you think byte
     		break;
     	default :
 			cout << "Not a recognized S-type instruction" << endl;
