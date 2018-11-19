@@ -172,7 +172,7 @@ void initRegister(){ // Sets every value in the register to be zero
 	for(int i = 0; i < 32; i++){
 		Reg[i] = 0;
 	}
-	Reg[sp] = lengthOfMemory - 1; //Inisializing the stack pointer to the last memory value.
+	Reg[sp] = lengthOfMemory - 1; //Initializing the stack pointer to the last memory value.
 }
 
 uint32_t signExtend(uint32_t toBeExtended, uint32_t msb){ // takes an uint, and the msb (0-indexed) of that uint, then sign extends accordingly
@@ -183,16 +183,28 @@ uint32_t signExtend(uint32_t toBeExtended, uint32_t msb){ // takes an uint, and 
 	}
 }
 
-void shittyInput(){
+int shittyInput(){
 	uint16_t input;
 	int i = 0;
-	while(input != 0x7300){ // - Break when Ecall
+	while(input != 0x61){ // - Break when Ecall
 		cin >> hex >> input;
 		Memory[i] = (uint8_t)(input>>byte);
 		i++;
 		Memory[i] = (uint8_t)(input);
 		i++;
 	}
+	return i;
+}
+
+void printProgram(int n){
+
+	for(int i = 0; i <= n; i = i + 4){
+		cout << dec << "Memory[" << i << ";" << i+3 << "] = ";
+		cout << hex << (uint32_t)Memory[i+3] << " ";
+		cout << hex << (uint32_t)Memory[i+2] << " ";
+		cout << hex << (uint32_t)Memory[i+1] << " ";
+		cout << hex << (uint32_t)Memory[i] << endl;
+	}	
 }
 
 uint32_t debug(){ // This uses a weird syntax, but tbh, it is far better than writing in commands as long decimals
@@ -309,7 +321,7 @@ uint32_t I(InstructionUnion instruction){
 	switch(encoding){
 		case 0x67: // JALR - 0110 0111
 			Reg[instruction.I_s.rd] = pc + 4;
-			pc = Reg[instruction.I_s.rs1] + instruction.I_s.imm;
+			pc = Reg[instruction.I_s.rs1] + signExtend((uint32_t)instruction.I_s.imm,msb) - 4;
 			break;
 		case 0x03: // LB - 0000 0011
 			Reg[instruction.I_s.rd] = Memory[instruction.I_s.imm + instruction.I_s.rs1] | signExtend(Memory[instruction.I_s.imm + instruction.I_s.rs1], byte-1);
@@ -365,21 +377,22 @@ uint32_t I(InstructionUnion instruction){
 
 
 uint32_t S(InstructionUnion instruction){ 
-	uint32_t imm = ((uint32_t)(instruction.S_s.imm11_5) << 5) | instruction.S_s.imm4_0; 
+	uint32_t imm = signExtend(((instruction.S_s.imm11_5) << 5) | instruction.S_s.imm4_0,11); 
+
 
     switch(instruction.S_s.funct3){
     	case 0x0:	// SB - 000
-    		Memory[instruction.S_s.rs1 + imm 	] =  Reg[instruction.S_s.rs2] 			 & 0xFF; // Only stores the first byte
+    		Memory[signExtend(Reg[instruction.S_s.rs1],11) + (int)imm 	] =  Reg[instruction.S_s.rs2] 			 & 0xFF; // Only stores the first byte
     		break;
     	case 0x1:  	// SH - 001
-    		Memory[instruction.S_s.rs1 + imm 	] =  Reg[instruction.S_s.rs2] 			 & 0xFF; // First byte
-    		Memory[instruction.S_s.rs1 + imm + 1] = (Reg[instruction.S_s.rs2] >> byte)   & 0xFF; // Second byte     	 
+    		Memory[signExtend(Reg[instruction.S_s.rs1],11) + (int)imm 	] =  Reg[instruction.S_s.rs2] 			 & 0xFF; // First byte
+    		Memory[signExtend(Reg[instruction.S_s.rs1],11) + (int)imm + 1] = (Reg[instruction.S_s.rs2] >> byte)   & 0xFF; // Second byte     	 
     		break;
     	case 0x2:	// SW - 010
-    		Memory[instruction.S_s.rs1 + imm 	] =   Reg[instruction.S_s.rs2] & 0xFF; 					 // First byte
-    		Memory[instruction.S_s.rs1 + imm + 1] = ((Reg[instruction.S_s.rs2] & 0xFF00) 	 >>   byte); // Second byte
-    		Memory[instruction.S_s.rs1 + imm + 2] = ((Reg[instruction.S_s.rs2] & 0xFF0000) 	 >> 2*byte); // Third byte
-    		Memory[instruction.S_s.rs1 + imm + 3] = ((Reg[instruction.S_s.rs2] & 0xFF000000) >> 3*byte); // What do you think byte
+	   		Memory[signExtend(Reg[instruction.S_s.rs1],11) + (int)imm 	  ] =   Reg[instruction.S_s.rs2] & 0xFF; 					 // First byte
+    		Memory[signExtend(Reg[instruction.S_s.rs1],11) + (int)imm + 1] = ((Reg[instruction.S_s.rs2] & 0xFF00) 	 >>   byte); // Second byte
+    		Memory[signExtend(Reg[instruction.S_s.rs1],11) + (int)imm + 2] = ((Reg[instruction.S_s.rs2] & 0xFF0000) 	 >> 2*byte); // Third byte
+    		Memory[signExtend(Reg[instruction.S_s.rs1],11) + (int)imm + 3] = ((Reg[instruction.S_s.rs2] & 0xFF000000) >> 3*byte); // What do you think byte
     		break;
     	default :
 			cout << "Not a recognized S-type instruction" << endl;
@@ -394,7 +407,7 @@ uint32_t B(InstructionUnion instruction){
     
 
 
-	cout << "immediate = " << hex << imm << endl;
+//	cout << "immediate = " << hex << imm << endl;
 
 	switch(instruction.B_s.funct3){
 		case 0x0: // beq - 000
@@ -452,12 +465,12 @@ uint32_t U(InstructionUnion instruction){
 }
 
 uint32_t J(InstructionUnion instruction){
-    uint32_t imm = ((uint32_t)(instruction.J_s.imm20) << 20) | ((uint32_t)(instruction.J_s.imm19_12) << 12) | ((uint32_t)(instruction.J_s.imm11) << 11) | ((uint32_t)(instruction.J_s.imm10_1) << 1);
+    uint32_t imm = signExtend(((uint32_t)(instruction.J_s.imm20) << 20) | ((uint32_t)(instruction.J_s.imm19_12) << 12) | ((uint32_t)(instruction.J_s.imm11) << 11) | ((uint32_t)(instruction.J_s.imm10_1) << 1),19);
     
     switch(instruction.J_s.opcode){
     	case 0x6F: // JAL - 1101111
     		Reg[instruction.J_s.rd] = pc + 4;
-    		pc = pc + imm;
+    		pc = pc + (int)imm - 4; // -4 to compensate for +4 in the while loop
     		break;
     	default:
 			cout << "Not a recognized J-type instruction" << endl;
@@ -493,7 +506,7 @@ char whatKindOfInstruction(InstructionUnion instruction){ // Looks at the opcode
 			break;
 		case 0x13 : // I OR R - type
 			if((instruction.R_s.funct3 != 0x1000) && (instruction.R_s.funct3 != 0x5000)){ // Handling the #NotAllinstruction.I_s.immediates problem
-				cout << 'I' << " " << instruction.R_s.funct3 << '\n';					  //Please note that it could have been instruction.I_s.funct3
+//				cout << 'I' << " " << instruction.R_s.funct3 << '\n';					  //Please note that it could have been instruction.I_s.funct3
 				return 'I';
 			}else{
 				return 'R';
@@ -514,17 +527,15 @@ char whatKindOfInstruction(InstructionUnion instruction){ // Looks at the opcode
 
 
 int main(){
-	bool flag = true, notAtTheEnd = true;
+	bool flag = false, notAtTheEnd = true;
 	InstructionUnion instruction;
-	//instruction.instruction = 0x408505b3;
 	char instructionType;
 	uint32_t branchInstruction = 0;
 	initRegister();
 	setMemoryToZero();
-	shittyInput();
+	int i = shittyInput();
+	printProgram(i);
 	while(notAtTheEnd){
-		//instruction.instruction = debug();
-		//instruction.instruction = prog[pc];
 
 		instruction.instruction = Memory[pc] | Memory[pc+1] << byte | Memory[pc + 2] << 2*byte | Memory[pc + 3] << 3*byte;
 
@@ -564,12 +575,12 @@ int main(){
 			printRegister();
 			printMemory();	
 		}
-		flag = true;
-
+		//flag = true;
 		pc += 4;
 	}
 
-
+	printMemory();
+	printRegister();
 
 	return 0;
 }
