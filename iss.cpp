@@ -165,9 +165,13 @@ void printMemory(){
 }
 
 void printRegister(){
+	cout << "Printing register (skipping zeros)" << endl;
 	for(int i = 0; i < 32; i++){
-		cout << "x" << dec << i << " = " << dec << (int)Reg[i] << endl;
+		if(Reg[i] != 0){
+			cout << "x" << dec << i << " = " << dec << (int)Reg[i] << endl;
+		}
 	}
+	cout << "-----" << endl;
 }
 
 void initRegister(){ // Sets every value in the register to be zero
@@ -359,10 +363,10 @@ uint32_t I(InstructionUnion instruction){
 			pc = Reg[instruction.I_s.rs1] + signExtend((uint32_t)instruction.I_s.imm,msb) - 4;
 			break;
 		case 0x03: // LB - 0000 0011
-			Reg[instruction.I_s.rd] = Memory[instruction.I_s.imm + instruction.I_s.rs1] | signExtend(Memory[instruction.I_s.imm + instruction.I_s.rs1], byte-1);
+			Reg[instruction.I_s.rd] = signExtend(Memory[instruction.I_s.imm + instruction.I_s.rs1], byte-1);
 			break;
 		case 0x83: // LH - 1000 0011
-			Reg[instruction.I_s.rd] = (Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1] | signExtend(((Memory[instruction.I_s.imm + instruction.I_s.rs1] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1]), 2*byte-1);
+			Reg[instruction.I_s.rd] = signExtend(((Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1]), 2*byte-1);
 			break;
 		case 0x103: //LW - 0001 0000 0011
 			Reg[instruction.I_s.rd] = ((uint32_t)Memory[instruction.I_s.imm + instruction.I_s.rs1 + 3] << 3*byte) | ((uint32_t)Memory[instruction.I_s.imm + instruction.I_s.rs1 + 2] << 2*byte) | ((uint32_t)Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1] << byte) | (uint32_t)Memory[instruction.I_s.imm + instruction.I_s.rs1];
@@ -414,10 +418,7 @@ uint32_t I(InstructionUnion instruction){
 uint32_t S(InstructionUnion instruction){ 
 	int imm = signExtend(((instruction.S_s.imm11_5) << 5) | instruction.S_s.imm4_0,11); 
 
-	cout << "immediate is " << imm << endl;
-
-	cout << "Gonna try to save in Memory[" << (int)signExtend(Reg[instruction.S_s.rs1],11) << " + " << imm << "] in Reg[" <<(int)signExtend(instruction.S_s.rs2,11) << "]"<< endl;
-    switch(instruction.S_s.funct3){
+	switch(instruction.S_s.funct3){
     	case 0x0:	// SB - 000
     		Memory[Reg[instruction.S_s.rs1] + imm 	 ] =  Reg[instruction.S_s.rs2] 			& 0xFF; // Only stores the first byte
     		break;
