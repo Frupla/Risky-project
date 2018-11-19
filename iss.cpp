@@ -219,23 +219,26 @@ bool readFileIntoMemory(){
 	ifstream file (filename, ios::in|ios::binary|ios::ate);//open file and set pointer at end of file
 	if (file.is_open())
 	{
-		cout << "file is open" << '\n' << endl;
+		cout << "file is open" << endl;
 		fileSize = file.tellg(); //use pointer to get file size
+		cout << fileSize << endl;
 		file.seekg (0, ios::beg); //set pointer to beginning of file 
-		while(file.tellg() < fileSize){
+		while((file.tellg() < (fileSize-(streampos)2))){
+			cout << file.tellg() << endl;
 			file.read (temporaryMemory, 2*sizeof(char)); //should also update file pointer
-			cout << hex << "1: "<< (int)temporaryMemory[0] <<  endl;
-			cout << hex << "2: "<< (int)temporaryMemory[1] <<  endl;
 			Memory[i] = (uint8_t)temporaryMemory[0];
 			i++;
 			Memory[i] = (uint8_t)temporaryMemory[1];
 			i++;
+			//cout << i << endl;
 		}
+		cout << "done reading in data" << endl;
+		delete[] temporaryMemory;
 	}	else 
 	{
 		cout << "Unable to open file" << endl;
 		return 1;
-	}	
+	}
 	return 0;
 }
 
@@ -569,8 +572,9 @@ int main(){
 	if(readFileIntoMemory()){
 		return 0;
 	}
+	printMemory();
 	while(notAtTheEnd){
-
+		cout << "started execution loop" << endl;
 		instruction.instruction = Memory[pc] | Memory[pc+1] << byte | Memory[pc + 2] << 2*byte | Memory[pc + 3] << 3*byte;
 
 
