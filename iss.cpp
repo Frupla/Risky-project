@@ -144,10 +144,14 @@ union InstructionUnion {
 
 
 // Global variables (It is nice to have access to these across all functions)
-static int lengthOfMemory = 1<<10;
+static int lengthOfMemory = 1<<20;
 uint32_t Reg[32]; 		// The 32 registers
 uint32_t pc = 0; 		// the program counter
+<<<<<<< HEAD
 uint8_t Memory[1<<20]; // the memory, an array of bytes of length 2^10
+=======
+uint8_t Memory[1<<20]; // the memory, an array of bytes of length 2^20
+>>>>>>> f691f8d4412d683ee31f694e08afec3c0835219e
 uint32_t pcmax = 0;
 
 void setMemoryToZero(){
@@ -415,20 +419,25 @@ uint32_t S(InstructionUnion instruction){
 	int imm = signExtend(((instruction.S_s.imm11_5) << 5) | instruction.S_s.imm4_0,11); 
 
 	cout << "immediate is " << imm << endl;
+<<<<<<< HEAD
 	cout << "Gonna try to save in Memory[" << (int)signExtend(Reg[instruction.S_s.rs1],11) << " + " << imm << "] in Reg[" <<(int)signExtend(instruction.S_s.rs2,11) << "]"<< endl;
+=======
+	cout << "Gonna try to save in Memory[" << Reg[instruction.S_s.rs1] << " + " << imm << "]" << endl;
+	cout << "Register adress is " << instruction.S_s.rs1 << endl;
+>>>>>>> f691f8d4412d683ee31f694e08afec3c0835219e
     switch(instruction.S_s.funct3){
     	case 0x0:	// SB - 000
-    		Memory[(int)signExtend(Reg[instruction.S_s.rs1],11) + imm 	 ] =  Reg[instruction.S_s.rs2] 			& 0xFF; // Only stores the first byte
+    		Memory[Reg[instruction.S_s.rs1] + imm 	 ] =  Reg[instruction.S_s.rs2] 			& 0xFF; // Only stores the first byte
     		break;
     	case 0x1:  	// SH - 001
-    		Memory[(int)signExtend(Reg[instruction.S_s.rs1],11) + imm 	 ] =  Reg[instruction.S_s.rs2] 			& 0xFF; // First byte
-    		Memory[(int)signExtend(Reg[instruction.S_s.rs1],11) + imm + 1] = (Reg[instruction.S_s.rs2] >> byte) & 0xFF; // Second byte     	 
+    		Memory[Reg[instruction.S_s.rs1] + imm 	 ] =  Reg[instruction.S_s.rs2] 			& 0xFF; // First byte
+    		Memory[Reg[instruction.S_s.rs1] + imm + 1] = (Reg[instruction.S_s.rs2] >> byte) & 0xFF; // Second byte     	 
     		break;
     	case 0x2:	// SW - 010
-	   		Memory[(int)signExtend(Reg[instruction.S_s.rs1],11) + imm 	 ] =   Reg[instruction.S_s.rs2] & 0xFF; 					 // First byte
-    		Memory[(int)signExtend(Reg[instruction.S_s.rs1],11) + imm + 1] = ((Reg[instruction.S_s.rs2] & 0xFF00) 	  >>   byte); // Second byte
-    		Memory[(int)signExtend(Reg[instruction.S_s.rs1],11) + imm + 2] = ((Reg[instruction.S_s.rs2] & 0xFF0000)   >> 2*byte); // Third byte
-    		Memory[(int)signExtend(Reg[instruction.S_s.rs1],11) + imm + 3] = ((Reg[instruction.S_s.rs2] & 0xFF000000) >> 3*byte); // What do you think byte
+	   		Memory[Reg[instruction.S_s.rs1] + imm 	 ] =   Reg[instruction.S_s.rs2] & 0xFF; 					 // First byte
+    		Memory[Reg[instruction.S_s.rs1] + imm + 1] = ((Reg[instruction.S_s.rs2] & 0xFF00) 	  >>   byte); // Second byte
+    		Memory[Reg[instruction.S_s.rs1] + imm + 2] = ((Reg[instruction.S_s.rs2] & 0xFF0000)   >> 2*byte); // Third byte
+    		Memory[Reg[instruction.S_s.rs1] + imm + 3] = ((Reg[instruction.S_s.rs2] & 0xFF000000) >> 3*byte); // What do you think byte
     		break;
     	default :
 			cout << "Not a recognized S-type instruction" << endl;
@@ -501,8 +510,7 @@ uint32_t U(InstructionUnion instruction){
 }
 
 uint32_t J(InstructionUnion instruction){
-    uint32_t imm = signExtend(((uint32_t)(instruction.J_s.imm20) << 20) | ((uint32_t)(instruction.J_s.imm19_12) << 12) | ((uint32_t)(instruction.J_s.imm11) << 11) | ((uint32_t)(instruction.J_s.imm10_1) << 1),19);
-    
+    uint32_t imm = signExtend(((uint32_t)(instruction.J_s.imm20) << 20) | ((uint32_t)(instruction.J_s.imm19_12) << 12) | ((uint32_t)(instruction.J_s.imm11) << 11) | ((uint32_t)(instruction.J_s.imm10_1) << 1),19);	 
     switch(instruction.J_s.opcode){
     	case 0x6F: // JAL - 1101111
     		Reg[instruction.J_s.rd] = pc + 4;
@@ -575,11 +583,10 @@ int main(){
 	}
 	printProgram(pcmax);
 	while(notAtTheEnd){
-		cout << "started execution loop" << endl;
 		instruction.instruction = Memory[pc] | Memory[pc+1] << byte | Memory[pc + 2] << 2*byte | Memory[pc + 3] << 3*byte;
 
 		instructionType = whatKindOfInstruction(instruction);
-
+		
 		switch(instructionType){
 			case 'R':
 				R(instruction);
