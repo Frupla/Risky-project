@@ -148,6 +148,7 @@ static int lengthOfMemory = 1<<10;
 uint32_t Reg[32]; 		// The 32 registers
 uint32_t pc = 0; 		// the program counter
 uint8_t Memory[1<<10]; // the memory, an array of bytes of length 2^10
+uint32_t pcmax = 0;
 
 void setMemoryToZero(){
 	for(int i = 0; i <= lengthOfMemory; i++){
@@ -217,25 +218,24 @@ bool readFileIntoMemory(){
 	char * temporaryMemory;
 	temporaryMemory = new char [2];
 	ifstream file (filename, ios::in|ios::binary|ios::ate);//open file and set pointer at end of file
-	if (file.is_open())
-	{
-		cout << "file is open" << '\n' << endl;
+	if (file.is_open()){
 		fileSize = file.tellg(); //use pointer to get file size
 		file.seekg (0, ios::beg); //set pointer to beginning of file 
-		while(file.tellg() < fileSize){
+
+		while(file.tellg() <= fileSize-(streampos)2){
+			cout << file.tellg() << " < " << fileSize << endl;
+			cout << "reading " << i << endl;
 			file.read (temporaryMemory, 2*sizeof(char)); //should also update file pointer
-			cout << hex << "1: "<< (int)temporaryMemory[0] <<  endl;
-			cout << hex << "2: "<< (int)temporaryMemory[1] <<  endl;
 			Memory[i] = (uint8_t)temporaryMemory[0];
 			i++;
 			Memory[i] = (uint8_t)temporaryMemory[1];
 			i++;
 		}
-	}	else 
-	{
+	}else {
 		cout << "Unable to open file" << endl;
 		return 1;
-	}	
+	}
+	pcmax = i/4;	
 	return 0;
 }
 
@@ -569,6 +569,7 @@ int main(){
 	if(readFileIntoMemory()){
 		return 0;
 	}
+	printProgram(pcmax);
 	while(notAtTheEnd){
 
 		instruction.instruction = Memory[pc] | Memory[pc+1] << byte | Memory[pc + 2] << 2*byte | Memory[pc + 3] << 3*byte;
