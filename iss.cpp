@@ -218,25 +218,15 @@ bool readFileIntoMemory(){
 	char * temporaryMemory;
 	temporaryMemory = new char [2];
 	ifstream file (filename, ios::in|ios::binary|ios::ate);//open file and set pointer at end of file
-<<<<<<< HEAD
 	if (file.is_open())
 	{
 		cout << "file is open" << endl;
-=======
-	if (file.is_open()){
->>>>>>> 5d63adcf2e7bc886defc834b64a44932455a3ffb
 		fileSize = file.tellg(); //use pointer to get file size
 		cout << fileSize << endl;
 		file.seekg (0, ios::beg); //set pointer to beginning of file 
-<<<<<<< HEAD
-		while((file.tellg() < (fileSize-(streampos)2))){
-			cout << file.tellg() << endl;
-=======
-
 		while(file.tellg() <= fileSize-(streampos)2){
 			cout << file.tellg() << " < " << fileSize << endl;
 			cout << "reading " << i << endl;
->>>>>>> 5d63adcf2e7bc886defc834b64a44932455a3ffb
 			file.read (temporaryMemory, 2*sizeof(char)); //should also update file pointer
 			Memory[i] = (uint8_t)temporaryMemory[0];
 			i++;
@@ -244,21 +234,13 @@ bool readFileIntoMemory(){
 			i++;
 			//cout << i << endl;
 		}
-<<<<<<< HEAD
 		cout << "done reading in data" << endl;
 		delete[] temporaryMemory;
-	}	else 
-	{
-		cout << "Unable to open file" << endl;
-		return 1;
-	}
-=======
 	}else {
 		cout << "Unable to open file" << endl;
 		return 1;
 	}
-	pcmax = i/4;	
->>>>>>> 5d63adcf2e7bc886defc834b64a44932455a3ffb
+	pcmax = i;	
 	return 0;
 }
 
@@ -592,11 +574,8 @@ int main(){
 	if(readFileIntoMemory()){
 		return 0;
 	}
-<<<<<<< HEAD
 	printMemory();
-=======
 	printProgram(pcmax);
->>>>>>> 5d63adcf2e7bc886defc834b64a44932455a3ffb
 	while(notAtTheEnd){
 		cout << "started execution loop" << endl;
 		instruction.instruction = Memory[pc] | Memory[pc+1] << byte | Memory[pc + 2] << 2*byte | Memory[pc + 3] << 3*byte;
