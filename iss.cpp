@@ -363,19 +363,19 @@ uint32_t I(InstructionUnion instruction){
 			pc = Reg[instruction.I_s.rs1] + signExtend((uint32_t)instruction.I_s.imm,msb) - 4;
 			break;
 		case 0x03: // LB - 0000 0011
-			Reg[instruction.I_s.rd] = signExtend(Memory[instruction.I_s.imm + instruction.I_s.rs1], byte-1);
+			Reg[instruction.I_s.rd] = signExtend(Memory[instruction.I_s.imm + Reg[instruction.I_s.rs1]], byte-1);
 			break;
 		case 0x83: // LH - 1000 0011
-			Reg[instruction.I_s.rd] = signExtend(((Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1]), 2*byte-1);
+			Reg[instruction.I_s.rd] = signExtend(((Memory[instruction.I_s.imm + Reg[instruction.I_s.rs1] + 1] << byte) | Memory[instruction.I_s.imm + Reg[instruction.I_s.rs1]]), 2*byte-1);
 			break;
 		case 0x103: //LW - 0001 0000 0011
-			Reg[instruction.I_s.rd] = ((uint32_t)Memory[instruction.I_s.imm + instruction.I_s.rs1 + 3] << 3*byte) | ((uint32_t)Memory[instruction.I_s.imm + instruction.I_s.rs1 + 2] << 2*byte) | ((uint32_t)Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1] << byte) | (uint32_t)Memory[instruction.I_s.imm + instruction.I_s.rs1];
+			Reg[instruction.I_s.rd] = ((uint32_t)Memory[instruction.I_s.imm + Reg[instruction.I_s.rs1] + 3] << 3*byte) | ((uint32_t)Memory[instruction.I_s.imm + Reg[instruction.I_s.rs1] + 2] << 2*byte) | ((uint32_t)Memory[instruction.I_s.imm + Reg[instruction.I_s.rs1] + 1] << byte) | (uint32_t)Memory[instruction.I_s.imm + Reg[instruction.I_s.rs1]];
 			break;
 		case 0x203: //LBU - 0010 0000 0011 
-			Reg[instruction.I_s.rd] = Memory[instruction.I_s.imm + instruction.I_s.rs1];
+			Reg[instruction.I_s.rd] = Memory[instruction.I_s.imm + Reg[instruction.I_s.rs1]];
 			break;
 		case 0x283: // LHU - 0010 1000 0011
-			Reg[instruction.I_s.rd] = (Memory[instruction.I_s.imm + instruction.I_s.rs1 + 1] << byte) | Memory[instruction.I_s.imm + instruction.I_s.rs1];
+			Reg[instruction.I_s.rd] = (Memory[instruction.I_s.imm + Reg[instruction.I_s.rs1] + 1] << byte) | Memory[instruction.I_s.imm + Reg[instruction.I_s.rs1]];
 			break;
 		case 0x13: // ADDI - 0001 0011
 			Reg[instruction.I_s.rd] = Reg[instruction.I_s.rs1] +  signExtend((uint32_t)instruction.I_s.imm, msb);
@@ -420,14 +420,14 @@ uint32_t S(InstructionUnion instruction){
 
 	switch(instruction.S_s.funct3){
     	case 0x0:	// SB - 000
-    		Memory[Reg[instruction.S_s.rs1] + imm 	 ] =  Reg[instruction.S_s.rs2] 			& 0xFF; // Only stores the first byte
+    		Memory[Reg[instruction.S_s.rs1] + imm 	 ] =  Reg[instruction.S_s.rs2] 	& 0xFF; // Only stores the first byte
     		break;
     	case 0x1:  	// SH - 001
-    		Memory[Reg[instruction.S_s.rs1] + imm 	 ] =  Reg[instruction.S_s.rs2] 			& 0xFF; // First byte
-    		Memory[Reg[instruction.S_s.rs1] + imm + 1] = (Reg[instruction.S_s.rs2] >> byte) & 0xFF; // Second byte     	 
+    		Memory[Reg[instruction.S_s.rs1] + imm 	 ] =  Reg[instruction.S_s.rs2] 	& 0xFF; // First byte
+    		Memory[Reg[instruction.S_s.rs1] + imm + 1] = (Reg[instruction.S_s.rs2]  & 0xFF00) >> byte; // Second byte     	 
     		break;
     	case 0x2:	// SW - 010
-	   		Memory[Reg[instruction.S_s.rs1] + imm 	 ] =   Reg[instruction.S_s.rs2] & 0xFF; 					 // First byte
+	   		Memory[Reg[instruction.S_s.rs1] + imm 	 ] =   Reg[instruction.S_s.rs2] & 0xFF; 				  // First byte
     		Memory[Reg[instruction.S_s.rs1] + imm + 1] = ((Reg[instruction.S_s.rs2] & 0xFF00) 	  >>   byte); // Second byte
     		Memory[Reg[instruction.S_s.rs1] + imm + 2] = ((Reg[instruction.S_s.rs2] & 0xFF0000)   >> 2*byte); // Third byte
     		Memory[Reg[instruction.S_s.rs1] + imm + 3] = ((Reg[instruction.S_s.rs2] & 0xFF000000) >> 3*byte); // What do you think byte
