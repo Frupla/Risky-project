@@ -149,6 +149,7 @@ uint32_t Reg[32]; 		// The 32 registers
 uint32_t pc = 0; 		// the program counter
 uint8_t Memory[1<<20]; // the memory, an array of bytes of length 2^20
 uint32_t pcmax = 0;
+string resfile;
 
 void setMemoryToZero(){
 	for(int i = 0; i <= lengthOfMemory; i++){
@@ -229,19 +230,21 @@ void printProgram(int n){
 }
 
 bool readFileIntoMemory(){
-	string filename;
-	cin >> filename;
+	string filename, input;
+	cin >> input;
+	filename = input + ".bin";
+	resfile = input + ".res";
 	int i = 0;
 	streampos fileSize;
 
 	char * temporaryMemory;
 	temporaryMemory = new char [2];
+
 	ifstream file (filename, ios::in|ios::binary|ios::ate);//open file and set pointer at end of file
 	if (file.is_open())
 	{
 		cout << "file is open" << endl;
 		fileSize = file.tellg(); //use pointer to get file size
-		cout << fileSize << endl;
 		file.seekg (0, ios::beg); //set pointer to beginning of file 
 		while(file.tellg() <= fileSize-(streampos)2){
 			file.read (temporaryMemory, 2*sizeof(char)); //should also update file pointer
@@ -252,13 +255,40 @@ bool readFileIntoMemory(){
 			//cout << i << endl;
 		}
 		cout << "done reading in data" << endl;
-		delete[] temporaryMemory;
 	}else {
 		cout << "Unable to open file" << endl;
 		return 1;
 	}
 	pcmax = i;	
 	return 0;
+}
+
+void handleNumbers(uint8_t q0, uint8_t q1){
+	cout << hex << (uint32_t)((q0 & 0xF0) >> byte/2) << (uint32_t)((q0 & 0x0F));
+	cout << hex << (uint32_t)((q1 & 0xF0) >> byte/2) << (uint32_t)((q1 & 0x0F)) << " ";
+}
+
+void printResfile(){
+	cout << "Printing resfile, I can't get it to print x10, but i can say that every single res" << endl << "file has that being like the fucking same so whatever" << endl;
+
+	ifstream infile(resfile, ios::in | ios::binary);
+
+	uint8_t q0, q1;
+
+	int skip = 3;
+	while(infile >> q0 >> q1){
+
+		handleNumbers(q0,q1);
+		infile >> q0 >> q1;
+		handleNumbers(q0,q1);
+
+		
+		if(!skip){
+			cout << endl;
+			skip = 4;
+		}
+		skip--;
+	}
 }
 
 uint32_t debug(){ // This uses a weird syntax, but tbh, it is far better than writing in commands as long decimals
@@ -634,7 +664,7 @@ int main(){
 	}
 	//printMemory();
 	printRegisterSquare();
-
+	printResfile();
 
 	return 0;
 }
