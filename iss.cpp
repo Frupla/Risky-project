@@ -230,6 +230,7 @@ void printProgram(int n){
 }
 
 bool readFileIntoMemory(){
+	cout << "Write a filename, BUT not .bin, what would fuck everything up" << endl;
 	string filename, input;
 	cin >> input;
 	filename = input + ".bin";
@@ -393,6 +394,8 @@ uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 			break;
 		default:
 			cout << "Not a recognized R-type instruction" << endl;
+			cout << hex << "funct7 is " <<  instruction.R_s.funct7 << ", funct3 is " << instruction.R_s.funct3 << " opcode was " << instruction.R_s.opcode << endl;
+			cout << hex << "encoding was " << encoding << endl;
 			break;
 	}
 	return 0;
@@ -646,14 +649,18 @@ int main(){
 				J(instruction);
 				break;
 			case 'X':
-				cout << "closing" << endl;
-				notAtTheEnd = false;
+				if(pc+8 >= pcmax){
+					cout << "closing" << endl;
+					notAtTheEnd = false;
+				}
 				break;
 			default:
 				flag = false;
 				cout << "Invalid input" << endl;
+				cout << hex << "opcode was" << instruction.B_s.opcode << " and funct3 is " << instruction.R_s.funct3 << " (might not be relevant)" << endl;
 				break;		
 		}
+		Reg[x0] = 0 // Can't be changed mofo
 		cout << "pc = " << dec << pc << endl;
 		if(flag){ // This just ensures that it doesn't print everything if it doesn't get a valid input.
 			printRegister();
@@ -661,6 +668,10 @@ int main(){
 		}
 		//flag = true;
 		pc += 4;
+		if(pc >= pcmax){
+			cout << "closing" << endl;
+			notAtTheEnd = false;
+		}
 	}
 	//printMemory();
 	printRegisterSquare();
