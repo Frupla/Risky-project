@@ -174,6 +174,21 @@ void printRegister(){
 	cout << "-----" << endl;
 }
 
+void printRegisterSquare(){
+	cout << "Printing register in little endian square" << endl;
+	cout << "(Ignore x2, it's the stack pointer)" << endl;
+	int k = 0;
+	for (int i = 0; i < 8;i++)
+	{
+		for(int j = 0; j < 4; j++){
+				printf("%02x%02x %02x%02x ",(Reg[k] & 0xff),((Reg[k]>>byte) & 0xff),((Reg[k]>>2*byte) & 0xff),((Reg[k]>>3*byte) & 0xff)); //%02x ntoh hton
+				k++;
+		}
+		printf("\n");
+	}
+	cout << "-----" << endl;
+}
+
 void initRegister(){ // Sets every value in the register to be zero
 	for(int i = 0; i < 32; i++){
 		Reg[i] = 0;
@@ -618,7 +633,7 @@ int main(){
 		pc += 4;
 	}
 	//printMemory();
-	printRegister();
+	printRegisterSquare();
 
 
 	return 0;
