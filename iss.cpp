@@ -660,10 +660,10 @@ int main(){
 				cout << hex << "opcode was" << instruction.B_s.opcode << " and funct3 is " << instruction.R_s.funct3 << " (might not be relevant)" << endl;
 				break;		
 		}
-		Reg[x0] = 0 // Can't be changed mofo
-		cout << "pc = " << dec << pc << endl;
+		Reg[x0] = 0; // Can't be changed mofo
+		//cout << "pc = " << dec << pc << endl;
 		if(flag){ // This just ensures that it doesn't print everything if it doesn't get a valid input.
-			printRegister();
+			//printRegister();
 			//printMemory();	
 		}
 		//flag = true;
