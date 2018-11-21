@@ -264,14 +264,12 @@ bool readFileIntoMemory(){
 	return 0;
 }
 
-<<<<<<< HEAD
 void handleNumbers(uint8_t q0, uint8_t q1){
 	printf("%02x%02x ",((uint32_t)q0)&0xffff ,((uint32_t)q1)&0xffff);
 	//cout << hex << (uint32_t)((q0 & 0xF0) >> byte/2) << (uint32_t)((q0 & 0x0F));
 	//cout << hex << (uint32_t)((q1 & 0xF0) >> byte/2) << (uint32_t)((q1 & 0x0F)) << " ";
 }
-=======
->>>>>>> 3083293a82ece985d79bdbaf961bc115aaa2062d
+
 
 typedef unsigned char BYTE;
 
@@ -713,14 +711,7 @@ int main(){
 				J(instruction);
 				break;
 			case 'X':
-<<<<<<< HEAD
 				notAtTheEnd = X(notAtTheEnd);
-=======
-				if(Reg[x10] == 10){
-					cout << "closing" << endl;
-					notAtTheEnd = false;
-				}
->>>>>>> 3083293a82ece985d79bdbaf961bc115aaa2062d
 				break;
 			default:
 				flag = false;
