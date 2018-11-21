@@ -264,32 +264,70 @@ bool readFileIntoMemory(){
 	return 0;
 }
 
-void handleNumbers(uint8_t q0, uint8_t q1){
-	cout << hex << (uint32_t)((q0 & 0xF0) >> byte/2) << (uint32_t)((q0 & 0x0F));
-	cout << hex << (uint32_t)((q1 & 0xF0) >> byte/2) << (uint32_t)((q1 & 0x0F)) << " ";
+
+typedef unsigned char BYTE;
+
+// Get the size of a file - Shady code I found on the web
+long getFileSize(FILE *file){
+    long lCurPos, lEndPos;
+    lCurPos = ftell(file);
+    fseek(file, 0, 2);
+    lEndPos = ftell(file);
+	fseek(file, lCurPos, 0);
+    return lEndPos;
 }
-
 void printResfile(){
-	cout << "Printing resfile, I can't get it to print x10, but i can say that every single res" << endl << "file has that being like the fucking same so whatever" << endl;
 
-	ifstream infile(resfile, ios::in | ios::binary);
+	int n = resfile.length();
 
-	uint8_t q0, q1;
+	int skip = 7;
 
-	int skip = 3;
-	while(infile >> q0 >> q1){
+	char * char_array;
 
-		handleNumbers(q0,q1);
-		infile >> q0 >> q1;
-		handleNumbers(q0,q1);
+	char_array = new char[n+1];
 
-		
-		if(!skip){
-			cout << endl;
-			skip = 4;
-		}
-		skip--;
+	for(int i = 0; i < n; i++){
+		char_array[i] = resfile[i];
 	}
+
+    const char *filePath = char_array; 
+    BYTE *fileBuf;          // Pointer to our buffered data
+    FILE *file = NULL;      // File pointer
+
+	// Open the file in binary mode using the "rb" format string
+    // This also checks if the file exists and/or can be opened for reading correctly
+	if ((file = fopen(filePath, "rb")) == NULL){
+		cout << "Could not find .res file, are you sure it is in the directory?" << endl;
+	}
+    
+    else{
+		cout << "Printing from the .res file" << endl;
+	    // Get the size of the file in bytes
+	    long fileSize = getFileSize(file);
+
+	    // Allocate space in the buffer for the whole file
+	    fileBuf = new BYTE[fileSize];
+
+	    // Read the file in to the buffer
+	    fread(fileBuf, fileSize, 1, file);
+	 
+	    // Now that we have the entire file buffered, we can take a look at some binary infomation
+	    // Lets take a look in hexadecimal
+	    for (int i = 0; i < fileSize; i += 2){
+	        printf("%02x%02x ", fileBuf[i], fileBuf[i+1]);
+
+	        if(!skip){
+	        	cout << endl;
+	        	skip = 8;
+	        }
+	        skip--;
+	    }
+
+
+	    cin.get();
+	    delete[]fileBuf;
+	    fclose(file);   // Almost forgot this
+    }
 }
 
 uint32_t debug(){ // This uses a weird syntax, but tbh, it is far better than writing in commands as long decimals
@@ -649,7 +687,7 @@ int main(){
 				J(instruction);
 				break;
 			case 'X':
-				if(pc+8 >= pcmax){
+				if(Reg[x10] == 10){
 					cout << "closing" << endl;
 					notAtTheEnd = false;
 				}
