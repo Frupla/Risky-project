@@ -531,20 +531,19 @@ uint32_t J(InstructionUnion instruction){
 
 
 uint32_t X(){
-	uint32_t notAtTheEnd = 1;
 	switch(Reg[a0]){
 		case 1:
 		cout << hex << Reg[a1];
 		break;
 		case 10:
 		cout << "closing" << endl;
-		notAtTheEnd = 0;
+		return 0;
 		break;
 		default:
 			cout << "Not a recognized ecall, content of a0 is: " << Reg[a0] << endl;
     		break;
 	}
-	return notAtTheEnd;
+	return 1;
 }
 
 char whatKindOfInstruction(InstructionUnion instruction){ // Looks at the opcode (and in one case funct3) and figures out which type of
@@ -614,7 +613,7 @@ int main(){
 				if(R(instruction)){;}
 				else{
 					cout << "R-type instruction failed" << endl;
-					cout << hex << "With instruction was: " << instruction.instruction << endl;
+					cout << hex << "The instruction was: " << instruction.instruction << endl;
 					notAtTheEnd = 0;
 				}
 				break;
@@ -622,7 +621,7 @@ int main(){
 				if(I(instruction)){;}
 				else{
 					cout << "I-type instruction failed" << endl;
-					cout << hex << "With instruction was: " << instruction.instruction << endl;
+					cout << hex << "The instruction was: " << instruction.instruction << endl;
 					notAtTheEnd = 0;
 				}
 				break;
@@ -630,7 +629,7 @@ int main(){
 				if(S(instruction)){;}
 				else{
 					cout << "S-type instruction failed" << endl;
-					cout << hex << "With instruction was: " << instruction.instruction << endl;
+					cout << hex << "The instruction was: " << instruction.instruction << endl;
 					notAtTheEnd = 0;
 				}
 				break;
@@ -638,7 +637,7 @@ int main(){
 				if(U(instruction)){;}
 				else{
 					cout << "U-type instruction failed" << endl;
-					cout << hex << "With instruction was: " << instruction.instruction << endl;
+					cout << hex << "The instruction was: " << instruction.instruction << endl;
 					notAtTheEnd = 0;
 				}
 				break;
@@ -646,7 +645,7 @@ int main(){
 				if(B(instruction)){;}
 				else{
 					cout << "B-type instruction failed" << endl;
-					cout << hex << "With instruction was: " << instruction.instruction << endl;
+					cout << hex << "The instruction was: " << instruction.instruction << endl;
 					notAtTheEnd = 0;
 				}
 				break;
@@ -654,13 +653,15 @@ int main(){
 				if(J(instruction)){;}
 				else{
 					cout << "J-type instruction failed" << endl;
-					cout << hex << "With instruction was: " << instruction.instruction << endl;
+					cout << hex << "The instruction was: " << instruction.instruction << endl;
 					notAtTheEnd = 0;
 				}
 				break;
 			case 'X':
-				notAtTheEnd = X();
-				break;
+				if(X()){;}
+				else{
+					notAtTheEnd = 0;
+				}
 			default:
 				cout << "Invalid input" << endl;
 				cout << hex << "opcode was" << instruction.B_s.opcode << " and funct3 is " << instruction.R_s.funct3 << " (might not be relevant)" << endl;
