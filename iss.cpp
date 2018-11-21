@@ -533,12 +533,20 @@ uint32_t J(InstructionUnion instruction){
 uint32_t X(){
 	switch(Reg[a0]){
 		case 1:
-		cout << hex << Reg[a1];
-		break;
+			cout << hex << Reg[a1];
+			break;
 		case 10:
-		cout << "closing" << endl;
-		return 0;
-		break;
+			cout << "closing" << endl;
+			return 0;
+			break;
+		case 11:
+			cout << (char)Reg[a1];
+			break;
+		case 17:
+			cout << hex << Reg[a1] << endl;
+			cout << "closing" << endl;
+			return 0;
+			break;
 		default:
 			cout << "Not a recognized ecall, content of a0 is: " << Reg[a0] << endl;
     		break;
