@@ -205,18 +205,6 @@ uint32_t signExtend(uint32_t toBeExtended, uint32_t msb){ // takes an uint, and 
 	}
 }
 
-int shittyInput(){
-	uint16_t input;
-	int i = 0;
-	while(input != 0x61){ // - Break when Ecall
-		cin >> hex >> input;
-		Memory[i] = (uint8_t)(input>>byte);
-		i++;
-		Memory[i] = (uint8_t)(input);
-		i++;
-	}
-	return i;
-}
 
 void printProgram(int n){
 
@@ -330,72 +318,6 @@ void printResfile(){
     }
 }
 
-uint32_t debug(){ // This uses a weird syntax, but tbh, it is far better than writing in commands as long decimals
-	// The input is four integers in array A, the syntax is as follow:
-	// A[0] determines what kind of instruction we are dealing with, 0 is addi, 1 is lw, 2 is sw and 3 is a generic R instruction (right now I'm using R to print the memory)
-	// A[1] is the register where the result of the instruction should be saved
-	// A[2] is the second register, often the value here is often manipulated in some fashion
-	// A[3] is the immediate, often added to the second register
-	InstructionUnion instruction;
-	int input;
-	int A[4];
-	int i = 0;
-	
-	while(i < 4){
-		cin >> A[i];
-		i++;
-	}
-
-	switch(A[0]){
-		case 0: // A[0] = addi A[1] = rd, A[2] = rs1, A[3] = imm
-			instruction.I_s.opcode = 0x13;
-			instruction.I_s.rd = A[1];
-			instruction.I_s.funct3 = 0x0;
-			instruction.I_s.rs1 = A[2];
-			instruction.I_s.imm = A[3];
-			break;
-		case 1: // A[0] = lw, A[1] = rd, A[2] = rs1, A[3] = imm
-			instruction.I_s.opcode = 0x03;
-			instruction.I_s.rd = A[1];
-			instruction.I_s.funct3 = 0x02;
-			instruction.I_s.rs1 = A[2];
-			instruction.I_s.imm = A[3];
-			break;
-		case 2: // A[0] = sw, A[1] = rs2, A[2] = rs1, A[3] = imm
-			instruction.S_s.opcode = 0x23;
-			instruction.S_s.rs2 = A[1];
-			instruction.S_s.funct3 = 0x02;
-			instruction.S_s.rs1 = A[2];
-			instruction.S_s.imm4_0 = A[3]; // this should be kept below 15 (yes this is shitty Irene, but it is just for debugging)
-			break;
-		case 3: // A[0] = add, A[1] = rs2, A[2] = rs1, A[3] = rs2
-			instruction.R_s.opcode = 0x33;
-			instruction.R_s.rd = A[1];
-			instruction.R_s.funct3 = 0x0;
-			instruction.R_s.rs1 = A[2];
-			instruction.R_s.rs2 = A[3];
-			instruction.R_s.funct7 = 0x0;
-			break;
-		case 4: // A[0] = sra, A[1] = rs2, A[2] = rs1, A[3] = rs2
-			instruction.R_s.opcode = 0x33; //011 0011 
-			instruction.R_s.rd = A[1];
-			instruction.R_s.funct3 = 0x5; //101
-			instruction.R_s.rs1 = A[2];
-			instruction.R_s.rs2 = A[3];
-			instruction.R_s.funct7 = 0x20; //010 0000 
-			break;
-		case 5:
-			instruction.B_s.opcode = 0x73;
-		default : 
-			break;
-	}
-
-	return instruction.instruction;
-
-}
-
-//111111111111111000000010
-//11111111000000000000000111111110
 
 uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 	uint32_t encoding =  ((uint32_t)(instruction.R_s.funct7) << 10) | ((uint32_t)(instruction.R_s.funct3) << 7) | instruction.R_s.opcode; // funct7, funct3 and opcode informs us what instruction we are dealing with
@@ -432,11 +354,10 @@ uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 			break;
 		default:
 			cout << "Not a recognized R-type instruction" << endl;
-			cout << hex << "funct7 is " <<  instruction.R_s.funct7 << ", funct3 is " << instruction.R_s.funct3 << " opcode was " << instruction.R_s.opcode << endl;
-			cout << hex << "encoding was " << encoding << endl;
-			break;
-	}
-	return 0;
+			return 0;
+    		break;
+    }
+    return 1;
 }
 
 uint32_t I(InstructionUnion instruction){
@@ -496,8 +417,10 @@ uint32_t I(InstructionUnion instruction){
 		//	break; 
 		default:
 			cout << "Not a recognized I-type instruction" << endl;
-	}
-	return 0;
+	    	return 0;
+    		break;
+    }
+    return 1;
 }
 
 
@@ -521,10 +444,10 @@ uint32_t S(InstructionUnion instruction){
     		break;
     	default :
 			cout << "Not a recognized S-type instruction" << endl;
+    		return 0;
     		break;
     }
-
-   return 0;
+    return 1;
 }
 
 uint32_t B(InstructionUnion instruction){
@@ -567,9 +490,10 @@ uint32_t B(InstructionUnion instruction){
 			break;	
 		default:
 			cout << "Not a recognized B-type instruction" << endl;
-			break;
-	}
-	return 0;
+    		return 0;
+    		break;
+    }
+    return 1;
 }
 
 uint32_t U(InstructionUnion instruction){
@@ -584,9 +508,10 @@ uint32_t U(InstructionUnion instruction){
     		break;
     	default:
 			cout << "Not a recognized U-type instruction" << endl;
+    		return 0;
     		break;
     }
-    return 0;
+    return 1;
 }
 
 uint32_t J(InstructionUnion instruction){
@@ -598,20 +523,22 @@ uint32_t J(InstructionUnion instruction){
     		break;
     	default:
 			cout << "Not a recognized J-type instruction" << endl;
+    		return 0;
     		break;
     }
-    return 0;
+    return 1;
 }
 
 
-uint32_t X(bool notAtTheEnd){
+uint32_t X(){
+	uint32_t notAtTheEnd = 1;
 	switch(Reg[a0]){
 		case 1:
 		cout << hex << Reg[a1];
 		break;
 		case 10:
 		cout << "closing" << endl;
-		notAtTheEnd = false;
+		notAtTheEnd = 0;
 		break;
 		default:
 			cout << "Not a recognized ecall, content of a0 is: " << Reg[a0] << endl;
@@ -667,13 +594,12 @@ char whatKindOfInstruction(InstructionUnion instruction){ // Looks at the opcode
 
 
 int main(){
-	bool flag = true, notAtTheEnd = true;
+	uint32_t notAtTheEnd = 1;
 	InstructionUnion instruction;
 	char instructionType;
 	uint32_t branchInstruction = 0;
 	initRegister();
 	setMemoryToZero();
-	//shittyInput();
 	if(readFileIntoMemory()){
 		return 0;
 	}
@@ -685,43 +611,68 @@ int main(){
 		
 		switch(instructionType){
 			case 'R':
-				R(instruction);
+				if(R(instruction)){;}
+				else{
+					cout << "R-type instruction failed" << endl;
+					cout << hex << "With instruction was: " << instruction.instruction << endl;
+					notAtTheEnd = 0;
+				}
 				break;
 			case 'I':
-				I(instruction);
+				if(I(instruction)){;}
+				else{
+					cout << "I-type instruction failed" << endl;
+					cout << hex << "With instruction was: " << instruction.instruction << endl;
+					notAtTheEnd = 0;
+				}
 				break;
 			case 'S':
-				S(instruction);
+				if(S(instruction)){;}
+				else{
+					cout << "S-type instruction failed" << endl;
+					cout << hex << "With instruction was: " << instruction.instruction << endl;
+					notAtTheEnd = 0;
+				}
 				break;
 			case 'U':
-				U(instruction);
+				if(U(instruction)){;}
+				else{
+					cout << "U-type instruction failed" << endl;
+					cout << hex << "With instruction was: " << instruction.instruction << endl;
+					notAtTheEnd = 0;
+				}
 				break;
 			case 'B':
-				B(instruction);
+				if(B(instruction)){;}
+				else{
+					cout << "B-type instruction failed" << endl;
+					cout << hex << "With instruction was: " << instruction.instruction << endl;
+					notAtTheEnd = 0;
+				}
 				break;
 			case 'J':
-				J(instruction);
+				if(J(instruction)){;}
+				else{
+					cout << "J-type instruction failed" << endl;
+					cout << hex << "With instruction was: " << instruction.instruction << endl;
+					notAtTheEnd = 0;
+				}
 				break;
 			case 'X':
-				notAtTheEnd = X(notAtTheEnd);
+				notAtTheEnd = X();
 				break;
 			default:
-				flag = false;
 				cout << "Invalid input" << endl;
 				cout << hex << "opcode was" << instruction.B_s.opcode << " and funct3 is " << instruction.R_s.funct3 << " (might not be relevant)" << endl;
 				break;		
 		}
 		Reg[x0] = 0; // Can't be changed mofo
 		//cout << "pc = " << dec << pc << endl;
-		if(flag){ // This just ensures that it doesn't print everything if it doesn't get a valid input.
-			//printRegister();
-			//printMemory();	
-		}
-		//flag = true;
+		
 		pc += 4;
 		if(pc >= pcmax){
 			cout << "closing" << endl;
-			notAtTheEnd = false;
+			notAtTheEnd = 0;
 		}
 	}
 	//printMemory();
