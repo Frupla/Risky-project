@@ -265,8 +265,9 @@ bool readFileIntoMemory(){
 }
 
 void handleNumbers(uint8_t q0, uint8_t q1){
-	cout << hex << (uint32_t)((q0 & 0xF0) >> byte/2) << (uint32_t)((q0 & 0x0F));
-	cout << hex << (uint32_t)((q1 & 0xF0) >> byte/2) << (uint32_t)((q1 & 0x0F)) << " ";
+	printf("%02x%02x ",((uint32_t)q0)&0xffff ,((uint32_t)q1)&0xffff);
+	//cout << hex << (uint32_t)((q0 & 0xF0) >> byte/2) << (uint32_t)((q0 & 0x0F));
+	//cout << hex << (uint32_t)((q1 & 0xF0) >> byte/2) << (uint32_t)((q1 & 0x0F)) << " ";
 }
 
 void printResfile(){
@@ -566,6 +567,24 @@ uint32_t J(InstructionUnion instruction){
 }
 
 
+uint32_t X(bool notAtTheEnd){
+	switch(Reg[a0]){
+		case 1:
+		cout << hex << Reg[a1];
+		break;
+		case 10:
+		if((pc+8 >= pcmax)){
+					cout << "closing" << endl;
+					notAtTheEnd = false;
+				}
+		break;
+		default:
+			cout << "Not a recognized ecall, content of a0 is: " << Ref[a0] << endl;
+    		break;
+	}
+	return notAtTheEnd;
+}
+
 char whatKindOfInstruction(InstructionUnion instruction){ // Looks at the opcode (and in one case funct3) and figures out which type of
 														  // Instruction we are dealing with
 	switch(instruction.B_s.opcode){ //001 0011 = 0x313
@@ -649,10 +668,7 @@ int main(){
 				J(instruction);
 				break;
 			case 'X':
-				if(pc+8 >= pcmax){
-					cout << "closing" << endl;
-					notAtTheEnd = false;
-				}
+				notAtTheEnd = X(notAtTheEnd);
 				break;
 			default:
 				flag = false;
