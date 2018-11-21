@@ -579,7 +579,7 @@ uint32_t X(bool notAtTheEnd){
 				}
 		break;
 		default:
-			cout << "Not a recognized ecall, content of a0 is: " << Ref[a0] << endl;
+			cout << "Not a recognized ecall, content of a0 is: " << Reg[a0] << endl;
     		break;
 	}
 	return notAtTheEnd;
