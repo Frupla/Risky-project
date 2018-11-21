@@ -264,12 +264,6 @@ bool readFileIntoMemory(){
 	return 0;
 }
 
-void handleNumbers(uint8_t q0, uint8_t q1){
-	printf("%02x%02x ",((uint32_t)q0)&0xffff ,((uint32_t)q1)&0xffff);
-	//cout << hex << (uint32_t)((q0 & 0xF0) >> byte/2) << (uint32_t)((q0 & 0x0F));
-	//cout << hex << (uint32_t)((q1 & 0xF0) >> byte/2) << (uint32_t)((q1 & 0x0F)) << " ";
-}
-
 
 typedef unsigned char BYTE;
 
@@ -616,10 +610,8 @@ uint32_t X(bool notAtTheEnd){
 		cout << hex << Reg[a1];
 		break;
 		case 10:
-		if((pc+8 >= pcmax)){
-					cout << "closing" << endl;
-					notAtTheEnd = false;
-				}
+		cout << "closing" << endl;
+		notAtTheEnd = false;
 		break;
 		default:
 			cout << "Not a recognized ecall, content of a0 is: " << Reg[a0] << endl;
