@@ -321,6 +321,8 @@ void printResfile(){
 
 uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 	uint32_t encoding =  ((uint32_t)(instruction.R_s.funct7) << 10) | ((uint32_t)(instruction.R_s.funct3) << 7) | instruction.R_s.opcode; // funct7, funct3 and opcode informs us what instruction we are dealing with
+	
+
 	switch(encoding){
 		case 0x00033: //ADD 0 0000 0000 0011 0011 = 0x0033
 			Reg[instruction.R_s.rd] = (int)Reg[instruction.R_s.rs1] + (int)Reg[instruction.R_s.rs2]; 
@@ -352,7 +354,32 @@ uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 		case 0x003b3:// AND 0 0000 0011 1011 0011 = 0x03b3 
 			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] & Reg[instruction.R_s.rs2];
 			break;
+		case 0x00433:// MUL 0 0000 0100 1011 0011 = 0x0433
+			Reg[instruction.R_s.rd] = (int)Reg[instruction.R_s.rs1] * (int)Reg[instruction.R_s.rs2];
+			break;
+		case 0x004b3:// MULH 0 0000 0111 1011 0011 = 0x04b3
+			
+			break;
+		case 0x00533:// MULHSU 0 0000 0101 0011 0011 = 0x0533
+			
+			break;
+		case 0x005b3:// MULHU 0 0000 0101 1011 0011 = 0x05b3
+			
+			break;
+		case 0x00633:// DIV 0 0000 0110 0011 0011 = 0x0633
+			
+			break;
+		case 0x006b3:// DIVU 0 0000 0110 1011 0011 = 0x06b3
+			
+			break;
+		case 0x00733:// REM 0 0000 0111 0011 0011 = 0x0733
+			
+			break;
+		case 0x007b3:// REMU 0 0000 0111 1011 0011 = 0x07b3
+			
+			break;
 		default:
+			cout << hex << encoding << endl;
 			cout << "Not a recognized R-type instruction" << endl;
 			return 0;
     		break;
@@ -610,7 +637,7 @@ int main(){
 	if(readFileIntoMemory()){
 		return 0;
 	}
-	printProgram(pcmax);
+//	printProgram(pcmax);
 	while(notAtTheEnd){
 		instruction.instruction = Memory[pc] | Memory[pc+1] << byte | Memory[pc + 2] << 2*byte | Memory[pc + 3] << 3*byte;
 
@@ -670,31 +697,21 @@ int main(){
 				else{
 					notAtTheEnd = 0;
 				}
+				break;
 			default:
 				cout << "Invalid input" << endl;
-				cout << hex << "opcode was" << instruction.B_s.opcode << " and funct3 is " << instruction.R_s.funct3 << " (might not be relevant)" << endl;
+				cout << hex << "opcode was " << instruction.B_s.opcode << " and funct3 is " << instruction.R_s.funct3 << " (might not be relevant)" << endl;
 				break;		
 		}
 		Reg[x0] = 0; // Can't be changed mofo
 		//cout << "pc = " << dec << pc << endl;
 		
 		pc += 4;
-		if(pc >= pcmax){
-			cout << "closing" << endl;
-			notAtTheEnd = 0;
-		}
 	}
 	//printMemory();
+	printRegister();
 	printRegisterSquare();
 	printResfile();
 
 	return 0;
 }
-
-/*
-List of tests:
-addlarge  - success
-addneg - success	
-addpos - success
-shift - success
-*/
