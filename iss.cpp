@@ -360,15 +360,13 @@ uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 			Reg[instruction.R_s.rd] = (int)Reg[instruction.R_s.rs1] * (int)Reg[instruction.R_s.rs2];
 			break;
 		case 0x004b3:// MULH 0 0000 0111 1011 0011 = 0x04b3
-<<<<<<< HEAD
 			signedLongVar = (int64_t)Reg[instruction.R_s.rs1] * (int64_t)Reg[instruction.R_s.rs2];
 			cout << hex << "signedLongVar= " << signedLongVar << endl;
 			signedVar = (int32_t)((signedLongVar & 0x00000000ffffffff) >> 32); //& 0x00000000ffffffff);
 			cout << hex << "signedVar= " << signedVar << endl;
 			Reg[instruction.R_s.rd] = (int)signedVar;
-=======
-			Reg[instruction.R_s.rd] = (uint32_t)(((int64_t)Reg[instruction.R_s.rs1] * (int64_t)Reg[instruction.R_s.rs2]) >> 4*byte);
->>>>>>> ab50161b2867c9a6912cb31dd8f9357dac01221f
+			//Reg[instruction.R_s.rd] = (uint32_t)(((int64_t)Reg[instruction.R_s.rs1] * (int64_t)Reg[instruction.R_s.rs2]) >> 4*byte);
+
 			break;
 		case 0x00533:// MULHSU 0 0000 0101 0011 0011 = 0x0533
 			
