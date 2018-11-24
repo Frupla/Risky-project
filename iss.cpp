@@ -358,7 +358,7 @@ uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 			Reg[instruction.R_s.rd] = (int)Reg[instruction.R_s.rs1] * (int)Reg[instruction.R_s.rs2];
 			break;
 		case 0x004b3:// MULH 0 0000 0111 1011 0011 = 0x04b3
-			
+			Reg[instruction.R_s.rd] = (uint32_t)(((int64_t)Reg[instruction.R_s.rs1] * (int64_t)Reg[instruction.R_s.rs2]) >> 4*byte);
 			break;
 		case 0x00533:// MULHSU 0 0000 0101 0011 0011 = 0x0533
 			
