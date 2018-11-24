@@ -1,0 +1,249 @@
+debugging
+
+addi a0 x0 12
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = 12
+-----
+addi a1 x0 27
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = 12
+x11 = 27
+-----
+mulh s0 a0 a1
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = 12
+x11 = 27
+-----
+mulh s1 a1 a0
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = 12
+x11 = 27
+-----
+addi a0 x0 -31
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = -31
+x11 = 27
+-----
+addi a1 x0 756
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = -31
+x11 = 756
+-----
+mulh s2 a0 a1
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = -31
+x11 = 756
+x18 = -1
+-----
+mulh s3 a1 a0
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = -31
+x11 = 756
+x18 = -1
+x19 = -1
+-----
+addi a0 x0 -31
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = -31
+x11 = 756
+x18 = -1
+x19 = -1
+-----
+addi a1 x0 -756
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = -31
+x11 = -756
+x18 = -1
+x19 = -1
+-----
+mulh s4 a0 a1
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = -31
+x11 = -756
+x18 = -1
+x19 = -1
+-----
+mulh s5 a1 a0
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = -31
+x11 = -756
+x18 = -1
+x19 = -1
+-----
+lui a0 1048568
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = -32768
+x11 = -756
+x18 = -1
+x19 = -1
+-----
+addi a0 a0 437
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = -32331
+x11 = -756
+x18 = -1
+x19 = -1
+-----
+lui a1 1048402
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = -32331
+x11 = -712704
+x18 = -1
+x19 = -1
+-----
+addi a1 a1 348
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = -32331
+x11 = -712356
+x18 = -1
+x19 = -1
+-----
+mulh s6 a0 a1 <---- first error, x22 should contain 5 now
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = -32331
+x11 = -712356
+x18 = -1
+x19 = -1
+-----
+mulh s7 a1 a0
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = -32331
+x11 = -712356
+x18 = -1
+x19 = -1
+-----
+lui a0 5213
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = 21352448
+x11 = -712356
+x18 = -1
+x19 = -1
+-----
+addi a0 a0 -1127
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = 21351321
+x11 = -712356
+x18 = -1
+x19 = -1
+-----
+lui a1 1026026
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = 21351321
+x11 = -92364800
+x18 = -1
+x19 = -1
+-----
+addi a1 a1 557
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = 21351321
+x11 = -92364243
+x18 = -1
+x19 = -1
+-----
+mulh s8 a0 a1
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = 21351321
+x11 = -92364243
+x18 = -1
+x19 = -1
+-----
+mulh s9 a1 a0
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = 21351321
+x11 = -92364243
+x18 = -1
+x19 = -1
+-----
+addi a0 x0 10
+
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = 10
+x11 = -92364243
+x18 = -1
+x19 = -1
+-----
+closing
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = 10
+x11 = -92364243
+x18 = -1
+x19 = -1
+-----
+Printing register (skipping zeros)
+x2 = 1048575
+x10 = 10
+x11 = -92364243
+x18 = -1
+x19 = -1
+-----
+Printing register in little endian square
+(Ignore x2, it's the stack pointer)
+0000 0000 0000 0000 ffff 0f00 0000 0000 
+0000 0000 0000 0000 0000 0000 0000 0000 
+0000 0000 0000 0000 0a00 0000 2da2 7efa 
+0000 0000 0000 0000 0000 0000 0000 0000 
+0000 0000 0000 0000 ffff ffff ffff ffff 
+0000 0000 0000 0000 0000 0000 0000 0000 
+0000 0000 0000 0000 0000 0000 0000 0000 
+0000 0000 0000 0000 0000 0000 0000 0000 
+-----
+Printing from the .res file
+0000 0000 0000 0000 0000 0000 0000 0000 
+0000 0000 0000 0000 0000 0000 0000 0000 
+0000 0000 0000 0000 0a00 0000 2da2 7efa 
+0000 0000 0000 0000 0000 0000 0000 0000 
+0000 0000 0000 0000 ffff ffff ffff ffff 
+0000 0000 0000 0000 0500 0000 0500 0000 
+63fe f8ff 63fe f8ff 0000 0000 0000 0000 
+0000 0000 0000 0000 0000 0000 0000 0000 
+dragonfly:Risky-project irene$ 
