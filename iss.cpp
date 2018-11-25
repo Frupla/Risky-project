@@ -709,6 +709,7 @@ int main(){
 			default:
 				cout << "Invalid input" << endl;
 				cout << hex << "opcode was " << instruction.B_s.opcode << " and funct3 is " << instruction.R_s.funct3 << " (might not be relevant)" << endl;
+				notAtTheEnd = 0;
 				break;		
 		}
 		Reg[x0] = 0; // Can't be changed mofo
