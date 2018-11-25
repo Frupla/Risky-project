@@ -3,15 +3,8 @@
 #include <fstream>
 #include <string.h>
 
-//TODO: ask TA's about how to implement SLLI, SRLI and SRAI
-//      ask TA's if we can always assume programs end on ecall, or on newline or what
-//					essentially what are the end conditions for a program
 using namespace std;
 
-
-// So we can just call registers their names, though, we might never have to use this...
-
-// Oh well, we can alwas delete this
 #define x0  0
 #define x1  1
 #define x2  2
@@ -150,7 +143,7 @@ uint32_t pc = 0; 		// the program counter
 uint8_t Memory[1<<20]; // the memory, an array of bytes of length 2^20
 uint32_t pcmax = 0;
 string resfile;
-int printResAtTheEnd = 0;
+//int printResAtTheEnd = 0;
 
 void setMemoryToZero(){
 	for(int i = 0; i <= lengthOfMemory; i++){
