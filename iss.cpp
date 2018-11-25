@@ -150,6 +150,7 @@ uint32_t pc = 0; 		// the program counter
 uint8_t Memory[1<<20]; // the memory, an array of bytes of length 2^20
 uint32_t pcmax = 0;
 string resfile;
+int printResAtTheEnd = 0;
 
 void setMemoryToZero(){
 	for(int i = 0; i <= lengthOfMemory; i++){
@@ -218,9 +219,11 @@ void printProgram(int n){
 }
 
 bool readFileIntoMemory(){
-	cout << "Write a filename, BUT not .bin, what would fuck everything up" << endl;
+	cout << "The name of the .bin file you want to execute (just the name, not .bin)" << endl;
 	string filename, input;
 	cin >> input;
+	cout << "Is the .res file in this directory, and do you want to print that in the end?" << endl << "0. Yes\n1. No" << endl;
+	cin >> printResAtTheEnd;
 	filename = input + ".bin";
 	resfile = input + ".res";
 	int i = 0;
@@ -266,55 +269,58 @@ long getFileSize(FILE *file){
 }
 void printResfile(){
 
-	int n = resfile.length();
+	if(printResAtTheEnd){
+	}else{
+		int n = resfile.length();
 
-	int skip = 7;
+		int skip = 7;
 
-	char * char_array;
+		char * char_array;
 
-	char_array = new char[n+1];
+		char_array = new char[n+1];
 
-	for(int i = 0; i < n; i++){
-		char_array[i] = resfile[i];
-	}
+		for(int i = 0; i < n; i++){
+			char_array[i] = resfile[i];
+		}
 
-    const char *filePath = char_array; 
-    BYTE *fileBuf;          // Pointer to our buffered data
-    FILE *file = NULL;      // File pointer
+	    const char *filePath = char_array; 
+	    BYTE *fileBuf;          // Pointer to our buffered data
+	    FILE *file = NULL;      // File pointer
 
-	// Open the file in binary mode using the "rb" format string
-    // This also checks if the file exists and/or can be opened for reading correctly
-	if ((file = fopen(filePath, "rb")) == NULL){
-		cout << "Could not find .res file, are you sure it is in the directory?" << endl;
-	}
-    
-    else{
-		cout << "Printing from the .res file" << endl;
-	    // Get the size of the file in bytes
-	    long fileSize = getFileSize(file);
+		// Open the file in binary mode using the "rb" format string
+	    // This also checks if the file exists and/or can be opened for reading correctly
+		if ((file = fopen(filePath, "rb")) == NULL){
+			cout << "Could not find .res file, are you sure it is in the directory?" << endl;
+		}
+	    
+	    else{
+			cout << "Printing from the .res file" << endl;
+		    // Get the size of the file in bytes
+		    long fileSize = getFileSize(file);
 
-	    // Allocate space in the buffer for the whole file
-	    fileBuf = new BYTE[fileSize];
+		    // Allocate space in the buffer for the whole file
+		    fileBuf = new BYTE[fileSize];
 
-	    // Read the file in to the buffer
-	    fread(fileBuf, fileSize, 1, file);
-	 
-	    // Now that we have the entire file buffered, we can take a look at some binary infomation
-	    // Lets take a look in hexadecimal
-	    for (int i = 0; i < fileSize; i += 2){
-	        printf("%02x%02x ", fileBuf[i], fileBuf[i+1]);
+		    // Read the file in to the buffer
+		    fread(fileBuf, fileSize, 1, file);
+		 
+		    // Now that we have the entire file buffered, we can take a look at some binary infomation
+		    // Lets take a look in hexadecimal
+		    for (int i = 0; i < fileSize; i += 2){
+		        printf("%02x%02x ", fileBuf[i], fileBuf[i+1]);
 
-	        if(!skip){
-	        	cout << endl;
-	        	skip = 8;
-	        }
-	        skip--;
-	    }
+		        if(!skip){
+		        	cout << endl;
+		        	skip = 8;
+		        }
+		        skip--;
+		    }
 
 
-	    cin.get();
-	    delete[]fileBuf;
-	    fclose(file);   // Almost forgot this
+		    cin.get();
+		    delete[]fileBuf;
+		    fclose(file);   // Almost forgot this
+		}
     }
 }
 
@@ -355,36 +361,6 @@ uint32_t R(InstructionUnion instruction){ //not done yet, I got distracted -ID
 			break;
 		case 0x003b3:// AND 0 0000 0011 1011 0011 = 0x03b3 
 			Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] & Reg[instruction.R_s.rs2];
-			break;
-		case 0x00433:// MUL 0 0000 0100 1011 0011 = 0x0433
-			Reg[instruction.R_s.rd] = (int)Reg[instruction.R_s.rs1] * (int)Reg[instruction.R_s.rs2];
-			break;
-		case 0x004b3:// MULH 0 0000 0111 1011 0011 = 0x04b3
-			signedLongVar = (int64_t)Reg[instruction.R_s.rs1] * (int64_t)Reg[instruction.R_s.rs2];
-			cout << hex << "signedLongVar= " << signedLongVar << endl;
-			signedVar = (int32_t)((signedLongVar & 0x00000000ffffffff) >> 32); //& 0x00000000ffffffff);
-			cout << hex << "signedVar= " << signedVar << endl;
-			Reg[instruction.R_s.rd] = (int)signedVar;
-			//Reg[instruction.R_s.rd] = (uint32_t)(((int64_t)Reg[instruction.R_s.rs1] * (int64_t)Reg[instruction.R_s.rs2]) >> 4*byte);
-
-			break;
-		case 0x00533:// MULHSU 0 0000 0101 0011 0011 = 0x0533
-			
-			break;
-		case 0x005b3:// MULHU 0 0000 0101 1011 0011 = 0x05b3
-			
-			break;
-		case 0x00633:// DIV 0 0000 0110 0011 0011 = 0x0633
-			//Reg[instruction.R_s.rd] = (int)Reg[instruction.R_s.rs1] / (int)Reg[instruction.R_s.rs2];
-			break;
-		case 0x006b3:// DIVU 0 0000 0110 1011 0011 = 0x06b3
-			//Reg[instruction.R_s.rd] = Reg[instruction.R_s.rs1] / Reg[instruction.R_s.rs2];
-			break;
-		case 0x00733:// REM 0 0000 0111 0011 0011 = 0x0733
-			
-			break;
-		case 0x007b3:// REMU 0 0000 0111 1011 0011 = 0x07b3
-			
 			break;
 		default:
 			cout << hex << encoding << endl;
@@ -571,7 +547,7 @@ uint32_t X(){
 			cout << hex << Reg[a1];
 			break;
 		case 10:
-			cout << "closing" << endl;
+			cout << "Program finished succesfully" << endl;
 			return 0;
 			break;
 		case 11:
@@ -714,11 +690,11 @@ int main(){
 		}
 		Reg[x0] = 0; // Can't be changed mofo
 		//cout << "pc = " << dec << pc << endl;
-		printRegister();
+		//printRegister();
 		pc += 4;
 	}
 	//printMemory();
-	printRegister();
+//	printRegister();
 	printRegisterSquare();
 	printResfile();
 
