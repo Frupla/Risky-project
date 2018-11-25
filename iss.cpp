@@ -693,10 +693,10 @@ int main(){
 		//printRegister();
 		pc += 4;
 	}
-	//printMemory();
 //	printRegister();
 	printRegisterSquare();
 	printResfile();
+//	printProgram(lengthOfMemory);
 
 	return 0;
 }

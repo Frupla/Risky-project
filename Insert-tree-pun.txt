@@ -1,0 +1,60 @@
+//#include "stdafx.h"
+#include "fib.h"
+
+int fibonacci(int n) {
+	if (n == 0) return 1;
+	else if (n == 1) return 1;
+	else return (fibonacci(n - 2) + fibonacci(n - 1));
+}
+
+fib::fib(int n){
+	if (n>0)	this->n = n;		//Give the order to the element in the tree
+	else		this->n = 1;			//If the order is 0, give the value 1
+
+	if (n >= 2) {				//If we're not in the bottom of a tree, make new branches
+		leftptr = new fib(n - 1);
+		rightptr = new fib(n - 2);
+	}
+}
+
+fib::~fib(){}
+
+void fib::preOrder() {
+	if (leftptr == nullptr) {
+		cout << 1;	
+	}	
+	else {
+		cout << fibonacci(n);
+		cout << " ";
+		leftptr->preOrder();
+		cout << " ";
+		rightptr->preOrder();
+	}
+}
+
+/*SIZE---------------------------------------------------------------------------------*/
+
+int fib::size() {
+	if (n <= 1) {
+		return 1;
+	}
+	return leftptr->size() + rightptr->size() + 1;
+}
+
+/*DEPTH---------------------------------------------------------------------------------*/
+
+int fib::depth() {
+	if (n <= 1) {
+		return 1;
+	}
+	else return 1 + leftptr->depth();
+}
+
+/*LEAVES---------------------------------------------------------------------------------*/
+
+int fib::leaves() {
+	if (n <= 1) {
+		return 1;
+	}
+	return leftptr->leaves() + rightptr->leaves();
+}
