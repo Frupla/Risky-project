@@ -646,7 +646,7 @@ int main(){
 		return 0;
 	}
 //	printProgram(pcmax);
-	while(notAtTheEnd){
+	while(notAtTheEnd && pc < pcmax){
 		instruction.instruction = Memory[pc] | Memory[pc+1] << byte | Memory[pc + 2] << 2*byte | Memory[pc + 3] << 3*byte;
 
 		instructionType = whatKindOfInstruction(instruction);
