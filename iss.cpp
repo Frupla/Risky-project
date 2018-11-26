@@ -188,25 +188,16 @@ void printRegisterSquare(){
 }
 
 void writeRegisterIntoFile(){
-	string outputFilename = inputname + "_res.bin";
-	char * pOutputFilename = new char [outputFilename.length()+1];
-	std::strcpy(pOutputFilename,outputFilename.c_str());
-	FILE * pOutput;
-	//output.open (outputfilename, ios::out | ios::app | ios::binary); 
-	pOutput = fopen(pOutputFilename,"w");
-	//fprintf(pOutput,"Printing register in little endian square\n");
-	//fprintf(pOutput,"(Ignore x2, it's the stack pointer)\n");
+	string outputfilename = inputname + "_res.bin";
 	int k = 0;
-	for (int i = 0; i < 8;i++)
-	{
-		for(int j = 0; j < 4; j++){
-				fprintf(pOutput,"%02x%02x%02x%02x",(Reg[k] & 0xff),((Reg[k]>>byte) & 0xff),((Reg[k]>>2*byte) & 0xff),((Reg[k]>>3*byte) & 0xff)); //%02x ntoh hton
-				k++;
-		}
-		//fprintf(pOutput,"\n");
+
+	ofstream file(outputfilename, ios::binary);
+	while(k < 32){
+		file.write((char*)&(Reg[k]), sizeof(uint32_t));
+		k++;
 	}
-	//fprintf(pOutput,"-----\n");
 }
+
 
 void initRegister(){ // Sets every value in the register to be zero
 	for(int i = 0; i < 32; i++){
