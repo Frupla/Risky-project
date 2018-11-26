@@ -139,7 +139,6 @@ union InstructionUnion {
 
 
 // Global variables (It is nice to have access to these across all functions)
-static int lengthOfMemory = 1<<20;
 uint32_t Reg[32]; 		// The 32 registers
 uint32_t pc = 0; 		// the program counter
 uint8_t Memory[1<<20]; // the memory, an array of bytes of length 2^20
@@ -149,18 +148,13 @@ string inputname;
 int printResAtTheEnd = 0;
 
 void setMemoryToZero(){
-	for(int i = 0; i <= lengthOfMemory; i++){
+	int i = 0;
+	while(i < 1<<20){
 		Memory[i] = 0;
+		i++;
 	}
 }
 
-void printMemory(){
-	for (int i = 0; i <= lengthOfMemory; i++){
-		if(Memory[i] != 0){
-			cout << "Memory[" << dec << i << "] = " << hex << (int)Memory[i] << endl;
-		}
-	}
-}
 
 void printRegister(){
 	cout << "Printing register (skipping zeros)" << endl;
@@ -203,7 +197,7 @@ void initRegister(){ // Sets every value in the register to be zero
 	for(int i = 0; i < 32; i++){
 		Reg[i] = 0;
 	}
-	Reg[sp] = lengthOfMemory - 1; //Initializing the stack pointer to the last memory value.
+	Reg[sp] = 1<<20-1;
 }
 
 uint32_t signExtend(uint32_t toBeExtended, uint32_t msb){ // takes an uint, and the msb (0-indexed) of that uint, then sign extends accordingly
