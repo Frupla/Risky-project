@@ -1,7 +1,9 @@
 #include <iostream>
 #include <stdint.h>
 #include <fstream>
+#include <stdio.h>
 #include <string.h>
+#include <cstring>
 
 using namespace std;
 
@@ -143,7 +145,8 @@ uint32_t pc = 0; 		// the program counter
 uint8_t Memory[1<<20]; // the memory, an array of bytes of length 2^20
 uint32_t pcmax = 0;
 string resfile;
-//int printResAtTheEnd = 0;
+string inputname;
+int printResAtTheEnd = 0;
 
 void setMemoryToZero(){
 	for(int i = 0; i <= lengthOfMemory; i++){
@@ -184,6 +187,27 @@ void printRegisterSquare(){
 	cout << "-----" << endl;
 }
 
+void writeRegisterIntoFile(){
+	string outputFilename = inputname + "_res.bin";
+	char * pOutputFilename = new char [outputFilename.length()+1];
+	std::strcpy(pOutputFilename,outputFilename.c_str());
+	FILE * pOutput;
+	//output.open (outputfilename, ios::out | ios::app | ios::binary); 
+	pOutput = fopen(pOutputFilename,"w");
+	fprintf(pOutput,"Printing register in little endian square\n");
+	fprintf(pOutput,"(Ignore x2, it's the stack pointer)\n");
+	int k = 0;
+	for (int i = 0; i < 8;i++)
+	{
+		for(int j = 0; j < 4; j++){
+				fprintf(pOutput,"%02x%02x %02x%02x ",(Reg[k] & 0xff),((Reg[k]>>byte) & 0xff),((Reg[k]>>2*byte) & 0xff),((Reg[k]>>3*byte) & 0xff)); //%02x ntoh hton
+				k++;
+		}
+		fprintf(pOutput,"\n");
+	}
+	fprintf(pOutput,"-----\n");
+}
+
 void initRegister(){ // Sets every value in the register to be zero
 	for(int i = 0; i < 32; i++){
 		Reg[i] = 0;
@@ -213,12 +237,12 @@ void printProgram(int n){
 
 bool readFileIntoMemory(){
 	cout << "The name of the .bin file you want to execute (just the name, not .bin)" << endl;
-	string filename, input;
-	cin >> input;
+	string filename;
+	cin >> inputname;
 	cout << "Is the .res file in this directory, and do you want to print that in the end?" << endl << "0. Yes\n1. No" << endl;
 	cin >> printResAtTheEnd;
-	filename = input + ".bin";
-	resfile = input + ".res";
+	filename = inputname + ".bin";
+	resfile = inputname + ".res";
 	int i = 0;
 	streampos fileSize;
 
@@ -690,6 +714,7 @@ int main(){
 	printRegisterSquare();
 	printResfile();
 //	printProgram(lengthOfMemory);
+	writeRegisterIntoFile();
 
 	return 0;
 }
