@@ -194,8 +194,8 @@ void writeRegisterIntoFile(){
 	FILE * pOutput;
 	//output.open (outputfilename, ios::out | ios::app | ios::binary); 
 	pOutput = fopen(pOutputFilename,"w");
-	fprintf(pOutput,"Printing register in little endian square\n");
-	fprintf(pOutput,"(Ignore x2, it's the stack pointer)\n");
+	//fprintf(pOutput,"Printing register in little endian square\n");
+	//fprintf(pOutput,"(Ignore x2, it's the stack pointer)\n");
 	int k = 0;
 	for (int i = 0; i < 8;i++)
 	{
@@ -205,7 +205,7 @@ void writeRegisterIntoFile(){
 		}
 		fprintf(pOutput,"\n");
 	}
-	fprintf(pOutput,"-----\n");
+	//fprintf(pOutput,"-----\n");
 }
 
 void initRegister(){ // Sets every value in the register to be zero
