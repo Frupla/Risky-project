@@ -200,10 +200,10 @@ void writeRegisterIntoFile(){
 	for (int i = 0; i < 8;i++)
 	{
 		for(int j = 0; j < 4; j++){
-				fprintf(pOutput,"%02x%02x %02x%02x ",(Reg[k] & 0xff),((Reg[k]>>byte) & 0xff),((Reg[k]>>2*byte) & 0xff),((Reg[k]>>3*byte) & 0xff)); //%02x ntoh hton
+				fprintf(pOutput,"%02x%02x%02x%02x",(Reg[k] & 0xff),((Reg[k]>>byte) & 0xff),((Reg[k]>>2*byte) & 0xff),((Reg[k]>>3*byte) & 0xff)); //%02x ntoh hton
 				k++;
 		}
-		fprintf(pOutput,"\n");
+		//fprintf(pOutput,"\n");
 	}
 	//fprintf(pOutput,"-----\n");
 }
