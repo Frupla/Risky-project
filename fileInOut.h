@@ -14,7 +14,6 @@ extern uint32_t pcmax;
 string getFileName();
 void writeMemoryIntoFile(string inputname);
 void writeRegisterIntoFile(string inputname);
-void writeProgramIntoFile(string inputname);
 bool readFileIntoMemory(string inputname);
 long getFileSize(FILE *file);
 void printResult(string inputname);

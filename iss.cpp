@@ -21,7 +21,6 @@ int main(){
 	if(readFileIntoMemory(input)){
 		return 0;
 	}
-//	printProgram(pcmax);
 	while(notAtTheEnd && pc < pcmax){
 		instruction.instruction = Memory[pc] | Memory[pc+1] << byte | Memory[pc + 2] << 2*byte | Memory[pc + 3] << 3*byte;
 
@@ -94,6 +93,7 @@ int main(){
 		pc += 4;
 	}
 	writeRegisterIntoFile(input);
+	writeMemoryIntoFile(input);
 	printResult(input);
 	printExpected(input);
 

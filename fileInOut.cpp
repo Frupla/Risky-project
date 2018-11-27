@@ -40,17 +40,6 @@ void writeRegisterIntoFile(string inputname){
 	}
 }
 
-void writeProgramIntoFile(string inputname){
-	string outputfilename = inputname + "_pro.bin";
-	int k = 0;
-
-	ofstream file(outputfilename, ios::binary);
-	while(k < pcmax){
-		file.write((char*)&(Memory[k]), sizeof(uint32_t));
-		k++;
-	}
-}
-
 bool readFileIntoMemory(string inputname){
 	string filename = inputname + ".bin";
 	int i = 0;
