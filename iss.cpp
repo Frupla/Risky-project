@@ -93,7 +93,7 @@ int main(){
 		pc += 4;
 	}
 	writeRegisterIntoFile(input);
-	writeMemoryIntoFile(input);
+//	writeMemoryIntoFile(input);
 	printResult(input);
 	printExpected(input);
 
