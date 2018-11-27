@@ -12,7 +12,7 @@ uint8_t Memory[1<<20]; // the memory, an array of bytes of length 2^20
 
 void setMemoryToZero(){
 	int i = 0;
-	while(i < 1<<20){
+	while(i < (1<<20)){
 		Memory[i] = 0;
 		i++;
 	}
@@ -22,7 +22,7 @@ void initRegister(){ // Sets every value in the register to be zero
 	for(int i = 0; i < 32; i++){
 		Reg[i] = 0;
 	}
-	Reg[sp] = 1<<20-1;
+	Reg[sp] = 1<<(20-1);
 }
 
 uint32_t signExtend(uint32_t toBeExtended, uint32_t msb){ // takes an uint, and the msb (0-indexed) of that uint, then sign extends accordingly
