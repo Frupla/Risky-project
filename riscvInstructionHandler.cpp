@@ -128,12 +128,10 @@ uint32_t I(InstructionUnion instruction){
 			if (instruction.II_s.funct7 == 0){
 				Reg[instruction.II_s.rd] = Reg[instruction.II_s.rs1] >> instruction.II_s.shamt;
 			} else{ // SRAI 0 1000
-				Reg[instruction.II_s.rd] = ((int)Reg[instruction.II_s.rs1] >> instruction.II_s.shamt); //arithmatic right shifting is a thing in C++, but only for signed integers
+				Reg[instruction.II_s.rd] = ((int)Reg[instruction.II_s.rs1] >> instruction.II_s.shamt); 
+				//arithmatic right shifting is a thing in C++, but only for signed integers
 			}
 			break;
-		//case 0x08293://SRAI 0 1000 0010 1001 0011 = 0x08293 //just shift w. shamt in rs2's place
-		//	Reg[instruction.R_s.rd] = signExtend((Reg[instruction.R_s.rs1] >> Reg[instruction.R_s.rs2]), 31-Reg[instruction.R_s.rs2]);
-		//	break; 
 		default:
 			cout << "Not a recognized I-type instruction" << endl;
 	    	return 0;

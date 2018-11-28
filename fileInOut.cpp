@@ -98,6 +98,7 @@ void printResult(string inputname){
 		char_array[i] = inputname[i];
 	}
 
+	char_array[n] = '\0';
 
     const char *filePath = char_array; 
     BYTE *fileBuf;          // Pointer to our buffered data
@@ -155,6 +156,7 @@ void printExpected(string inputname){
 		char_array[i] = inputname[i];
 	}
 
+	char_array[n] = '\0';
 
     const char *filePath = char_array; 
     BYTE *fileBuf;          // Pointer to our buffered data
